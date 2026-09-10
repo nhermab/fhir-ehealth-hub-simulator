@@ -13,13 +13,31 @@ hub:
     data-dir: "./data"
     # Strict modulo-97 checksum validation on patient SSIN (false allows synthetic test SSINs)
     strict-ssin-checksum: false
-    # Simulate partial failure by default on getTransactionList
+    # Simulate downstream partial failure on every getTransactionList (also togglable per request
+    # with the X-Simulate-Partial-Failure header or the _simulatePartialFailure parameter)
     simulate-partial-failure: false
     # Hub metadata
     hub-oid: "urn:oid:1.3.6.1.4.1.21297.1.3"
     hub-ehp: "1990000003"
     hub-name: "CoZo Regional Hub"
     server-base-url: "http://localhost:8080/fhir"
+    # getTransactionList paging. Continuation tokens stay opaque to the consumer, so the
+    # patient SSIN never travels inside Bundle.link.
+    default-page-size: 20
+    max-page-size: 200
+    continuation-token-ttl-seconds: 300
+    continuation-token-cache-size: 500
+    # Reference fragments that answer 410 Gone instead of 404 Not Found on getTransaction.
+    # A DocumentReference with status = entered-in-error is treated as withdrawn as well.
+    withdrawn-references:
+      - withdrawn
+      - gone
+    # Documents this hub can also serve as its own rendered PDF (transactions.md §3.4).
+    # Anything absent here answers 406 to Accept: application/pdf.
+    pdf-renderings:
+      DocRefLabReportContainedExample: rendered-lab-report-example-01.pdf
+      DocRefLabReportExample: rendered-lab-report-example-01.pdf
+      DocRefTelemonitoringExample: holter-001.pdf
 
 logging:
   level:
