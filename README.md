@@ -14,14 +14,13 @@ Built with **Spring Boot 3** and **HAPI FHIR 7.6.0**, this backend simulator imp
 
 ## 1. Supported Interhub Transactions & Operations
 
+The Implementation Guide is read-only and specifies **exactly two transactions**. This server exposes those two and nothing else — no read, create, update, delete or history interaction, and no other resource type. Anything outside the surface below answers **HTTP 404** with an `OperationOutcome` (`issue.code = not-supported`) naming the two transactions.
+
 | Transaction / Interaction | HTTP Method & Wire Endpoint | Implementation Details |
 | :--- | :--- | :--- |
-| **`getTransactionList`**<br/>*(MHD ITI-67 Find DocumentReferences)* | `POST [base]/DocumentReference/_search`<br/>(`application/x-www-form-urlencoded` body)<br/>*Also supports GET for general IHE conformance* | • Mandatory `patient.identifier` validation (Belgian SSIN / INSS).<br/>• Filters: `category`, `type` (LOINC), `date`, `author.identifier`, `status`, `_id`, `identifier`, `searchtype`, `_count`, `_sort`.<br/>• Returns FHIR `Bundle` (`type = searchset`) with `search.mode = match`.<br/>• Full partial failure support: downstream repository timeout/maintenance yields HTTP 200 OK with `OperationOutcome` at `search.mode = outcome`. |
-| **`getTransaction`**<br/>*(MHD ITI-68 / `$retrieve-document`)* | `POST [base]/DocumentReference/$retrieve-document`<br/>(`application/fhir+json` Parameters body) | • Accepts `Parameters.parameter[name="documentReference"]`.<br/>• Resolves references to self-contained FHIR Document Bundles (`type = document`).<br/>• Supports Content Negotiation: requesting `Accept: application/pdf` returns the raw PDF binary stream directly with HTTP 200 OK.<br/>• Returns HTTP 410 Gone with `OperationOutcome` if document is withdrawn.<br/>• Returns HTTP 404 Not Found with `OperationOutcome` if document does not exist. |
-| **Direct Document Read** | `GET [base]/Bundle/{id}` | Direct retrieval of complete clinical document bundles (conforming to `be-interhub-document-bundle`). |
-| **Direct Metadata Read** | `GET [base]/DocumentReference/{id}` | Direct retrieval of metadata envelope (conforming to `be-interhub-documentreference`). |
-| **Direct Binary Read** | `GET [base]/Binary/{id}` | Direct retrieval of binary artifacts (e.g. hub-rendered PDF report). |
-| **Capabilities Discovery** | `GET [base]/metadata` | Returns the normative `BeInterhubDocumentResponder` CapabilityStatement from the IG. |
+| **`getTransactionList`**<br/>*(MHD ITI-67 Find DocumentReferences)* | `POST [base]/DocumentReference/_search`<br/>(`application/x-www-form-urlencoded` body)<br/>*`GET [base]/DocumentReference` is tolerated for generic IHE conformance testing only* | • Mandatory `patient.identifier` validation (Belgian SSIN / INSS); a system other than the two national SSIN systems is refused with HTTP 400.<br/>• Filters: `category`, `type` (LOINC), `date`, `author.identifier`, `status`, `_id`, `identifier`, `searchtype`, `_count`, `_sort`.<br/>• `status` defaults to `current`; an unsupported `_sort` or `searchtype` is refused rather than silently ignored.<br/>• Returns FHIR `Bundle` (`type = searchset`) with `search.mode = match`; `Bundle.total` counts every match, not the page.<br/>• Paging stays on POST: `Bundle.link[relation=next]` carries an **opaque `_continuation` token**, so the patient SSIN never appears in a link URL.<br/>• Full partial failure support: downstream repository timeout/maintenance yields HTTP 200 OK with `OperationOutcome` at `search.mode = outcome`. A `searchtype=local` search does not fan out and therefore reports none. |
+| **`getTransaction`**<br/>*(`$retrieve-document`, gatewaying MHD ITI-68)* | `POST [base]/DocumentReference/$retrieve-document`<br/>(`application/fhir+json` Parameters body) | • Accepts `Parameters.parameter[name="documentReference"]`, either as a relative reference or as a logical reference carrying only `Reference.identifier`.<br/>• Resolves it to a self-contained FHIR document Bundle (`type = document`).<br/>• Content negotiation: `Accept: application/pdf` streams the hub's own rendering as raw binary with HTTP 200 OK.<br/>• HTTP 410 Gone + `OperationOutcome` when the source system withdrew the document.<br/>• HTTP 404 Not Found + `OperationOutcome` when it does not exist.<br/>• HTTP 406 Not Acceptable + `OperationOutcome` when this hub publishes no PDF rendering of that document. |
+| **Capabilities Discovery** | `GET [base]/metadata` | Returns this server's `kind = instance` CapabilityStatement, which claims conformance to the IG's `BeInterhubDocumentResponder` requirements through `instantiates`. |
 
 > **Path Forwarding**: Both `http://localhost:8080/fhir/...` (canonical base) and `http://localhost:8080/...` (without `/fhir` prefix) are supported transparently.
 
@@ -45,9 +44,9 @@ data/
 │   └── Bundle-BundleTransactionListResponseExample.json         # Complete sample searchset with OperationOutcome
 ├── operation-outcomes/
 │   └── OperationOutcome-OutcomePartialFailureExample.json       # Partial downstream repository timeout/maintenance
-├── metadata/
-│   ├── CapabilityStatement-BeInterhubDocumentResponder.json     # Normative responder CapabilityStatement
-│   └── OperationDefinition-BeRetrieveDocument.json              # $retrieve-document OperationDefinition
+├── metadata/                                                    # IG reference copies; the served
+│   ├── CapabilityStatement-BeInterhubDocumentResponder.json     # statement is generated at runtime
+│   └── OperationDefinition-BeRetrieveDocument.json              # from what this server implements
 ├── binaries/
 │   ├── rendered-lab-report-example-01.pdf                       # Hub-rendered sample lab report PDF
 │   └── holter-001.pdf                                           # Holter telemonitoring report PDF
@@ -75,7 +74,7 @@ To add additional clinical documents or patients to the simulator, simply drop y
 ```bash
 cd fhir-ehealth-hub-simulator
 
-# 1. Run all 16 unit and integration tests
+# 1. Run all 51 integration tests (each boots the app and hits real HTTP endpoints)
 mvn clean test
 
 # 2. Start the simulator server (runs on port 8080)
@@ -216,27 +215,47 @@ curl -i -X POST http://localhost:8080/fhir/DocumentReference/\$retrieve-document
 
 ---
 
-## 4.3 Direct Reads & CapabilityStatement
+#### No PDF Rendering Available (Returns HTTP 406 Not Acceptable with `OperationOutcome`):
+```bash
+curl -i -X POST http://localhost:8080/fhir/DocumentReference/\$retrieve-document   -H "Content-Type: application/fhir+json"   -H "Accept: application/pdf"   -d '{
+    "resourceType": "Parameters",
+    "parameter": [
+      {
+        "name": "documentReference",
+        "valueReference": {
+          "reference": "DocumentReference/DocRefMinimalExample"
+        }
+      }
+    ]
+  }'
+```
+
+---
+
+## 4.3 Pagination, CapabilityStatement & the Refused Surface
+
+#### Page 1, then the opaque POST continuation:
+```bash
+# The next link is [base]/DocumentReference/_search?_continuation=<opaque token>
+curl -X POST http://localhost:8080/fhir/DocumentReference/_search   -H "Content-Type: application/x-www-form-urlencoded"   -d "patient.identifier=79080412345&_count=2"
+
+# Replay the token in a new POST body; no other parameter is needed or honoured
+curl -X POST http://localhost:8080/fhir/DocumentReference/_search   -H "Content-Type: application/x-www-form-urlencoded"   -d "_continuation=<opaque token>"
+```
 
 #### CapabilityStatement Discovery:
 ```bash
 curl http://localhost:8080/fhir/metadata
 ```
 
-#### Direct Read of Complete Document Bundle:
+#### Anything Outside the Two Transactions (Returns HTTP 404 with `not-supported`):
 ```bash
-curl http://localhost:8080/fhir/Bundle/BundleLabReportExample
+curl -i http://localhost:8080/fhir/Bundle/BundleLabReportExample
+curl -i http://localhost:8080/fhir/DocumentReference/DocRefLabReportContainedExample
+curl -i http://localhost:8080/fhir/Binary/rendered-lab-report-example-01
 ```
 
-#### Direct Read of Metadata Envelope:
-```bash
-curl http://localhost:8080/fhir/DocumentReference/DocRefLabReportContainedExample
-```
-
-#### Direct Read of Rendered PDF Binary:
-```bash
-curl -H "Accept: application/pdf" http://localhost:8080/fhir/Binary/rendered-lab-report-example-01 -o sample.pdf
-```
+A `GET` on `_search` or `$retrieve-document` answers **HTTP 405** with an `Allow: POST` header: discovery and retrieval are POST-only so that patient identifiers never reach an access log.
 
 ---
 
@@ -259,4 +278,18 @@ hub:
     hub-ehp: "1990000003"
     hub-name: "CoZo Regional Hub"
     server-base-url: "http://localhost:8080/fhir"
+    # getTransactionList paging; continuation tokens stay opaque to the consumer
+    default-page-size: 20
+    max-page-size: 200
+    continuation-token-ttl-seconds: 300
+    continuation-token-cache-size: 500
+    # Reference fragments answering 410 Gone instead of 404 Not Found on getTransaction.
+    # A DocumentReference with status = entered-in-error is treated as withdrawn as well.
+    withdrawn-references: [withdrawn, gone]
+    # Documents this hub can also serve as its own rendered PDF (transactions.md §3.4).
+    # Anything absent here answers 406 to Accept: application/pdf.
+    pdf-renderings:
+      DocRefLabReportContainedExample: rendered-lab-report-example-01.pdf
+      DocRefLabReportExample: rendered-lab-report-example-01.pdf
+      DocRefTelemonitoringExample: holter-001.pdf
 ```

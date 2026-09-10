@@ -42,11 +42,19 @@ public class DocumentRepositoryImpl implements DocumentRepository {
     private final FhirContext fhirContext;
 
     private final List<DocumentReference> allDocumentReferences = new ArrayList<>();
+    /** Every alias a consumer may use in $retrieve-document: id, relative reference, uniqueId, local ids. */
     private final Map<String, DocumentReference> docRefByIdentifiers = new ConcurrentHashMap<>();
     private final Map<String, List<DocumentReference>> docRefsByPatientSsin = new ConcurrentHashMap<>();
 
-    private final Map<String, Bundle> documentBundles = new ConcurrentHashMap<>();
-    private final Map<String, byte[]> binaryFiles = new ConcurrentHashMap<>();
+    /** Document Bundles by their own id and identifier; used only while cross-linking. */
+    private final Map<String, Bundle> documentBundlesByIdentifier = new ConcurrentHashMap<>();
+    /** PDF files by file name and base name; used only while cross-linking. */
+    private final Map<String, byte[]> pdfFiles = new ConcurrentHashMap<>();
+
+    /** What getTransaction actually serves, keyed by DocumentReference logical id. */
+    private final Map<String, Bundle> payloadByDocRefId = new ConcurrentHashMap<>();
+    private final Map<String, byte[]> renderingByDocRefId = new ConcurrentHashMap<>();
+
     private final Map<String, OperationOutcome> operationOutcomes = new ConcurrentHashMap<>();
 
     private OperationOutcome defaultPartialFailureOutcome;
@@ -72,8 +80,10 @@ public class DocumentRepositoryImpl implements DocumentRepository {
         allDocumentReferences.clear();
         docRefByIdentifiers.clear();
         docRefsByPatientSsin.clear();
-        documentBundles.clear();
-        binaryFiles.clear();
+        documentBundlesByIdentifier.clear();
+        pdfFiles.clear();
+        payloadByDocRefId.clear();
+        renderingByDocRefId.clear();
         operationOutcomes.clear();
         defaultPartialFailureOutcome = null;
 
@@ -91,56 +101,68 @@ public class DocumentRepositoryImpl implements DocumentRepository {
         IParser parser = fhirContext.newJsonParser();
 
         try {
-            Collection<File> files = FileUtils.listFiles(dataPath.toFile(), null, true);
-            for (File file : files) {
+            List<IBaseResource> resources = new ArrayList<>();
+            for (File file : FileUtils.listFiles(dataPath.toFile(), null, true)) {
                 String ext = FilenameUtils.getExtension(file.getName()).toLowerCase();
                 if ("json".equals(ext)) {
-                    loadJsonFile(file, parser);
+                    parseJsonFile(file, parser).ifPresent(resources::add);
                 } else if ("pdf".equals(ext)) {
                     loadPdfFile(file);
                 }
             }
 
+            // Indexing order is deliberate and independent of the filesystem: standalone
+            // resources win, and the IG's searchset example only contributes what they missed.
+            resources.stream()
+                    .filter(DocumentReference.class::isInstance)
+                    .forEach(resource -> indexDocumentReference((DocumentReference) resource));
+            resources.stream()
+                    .filter(resource -> resource instanceof Bundle bundle
+                            && bundle.getType() == Bundle.BundleType.DOCUMENT)
+                    .forEach(resource -> indexDocumentBundle((Bundle) resource));
+            resources.stream()
+                    .filter(OperationOutcome.class::isInstance)
+                    .forEach(resource -> indexOperationOutcome((OperationOutcome) resource));
+            resources.stream()
+                    .filter(resource -> resource instanceof Bundle bundle
+                            && bundle.getType() == Bundle.BundleType.SEARCHSET)
+                    .forEach(resource -> indexSearchsetBundle((Bundle) resource));
+
             crossLinkDocumentReferencesAndBundles();
 
-            log.info("Repository loaded: {} DocumentReference(s), {} document Bundle(s), {} PDF(s), {} OperationOutcome(s)",
-                    allDocumentReferences.size(), getDocumentBundleCount(), binaryFiles.size(), operationOutcomes.size());
+            log.info("Repository loaded: {} DocumentReference(s), {} document Bundle(s), {} PDF rendering(s), "
+                            + "{} OperationOutcome(s); {} reference(s) resolve to a payload, {} to a rendering",
+                    allDocumentReferences.size(), getDocumentBundleCount(), countPdfFiles(),
+                    operationOutcomes.size(), payloadByDocRefId.size(), renderingByDocRefId.size());
 
         } catch (Exception e) {
             log.error("Error scanning data directory: {}", e.getMessage(), e);
         }
     }
 
-    private void loadJsonFile(File file, IParser parser) {
+    private Optional<IBaseResource> parseJsonFile(File file, IParser parser) {
         try (FileInputStream fis = new FileInputStream(file)) {
-            IBaseResource resource = parser.parseResource(fis);
-
-            if (resource instanceof DocumentReference docRef) {
-                indexDocumentReference(docRef);
-            } else if (resource instanceof Bundle bundle) {
-                if (bundle.getType() == Bundle.BundleType.DOCUMENT) {
-                    indexDocumentBundle(bundle);
-                } else if (bundle.getType() == Bundle.BundleType.SEARCHSET) {
-                    indexSearchsetBundle(bundle);
-                }
-            } else if (resource instanceof OperationOutcome outcome) {
-                if (outcome.hasIdElement()) {
-                    operationOutcomes.put(outcome.getIdPart(), outcome);
-                }
-                if (defaultPartialFailureOutcome == null) {
-                    defaultPartialFailureOutcome = outcome;
-                }
-            }
+            return Optional.of(parser.parseResource(fis));
         } catch (Exception e) {
-            log.debug("Skipping unparseable or non-matching JSON file {}: {}", file.getName(), e.getMessage());
+            log.debug("Skipping unparseable JSON file {}: {}", file.getName(), e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    private void indexOperationOutcome(OperationOutcome outcome) {
+        if (outcome.hasIdElement()) {
+            operationOutcomes.put(outcome.getIdPart(), outcome);
+        }
+        if (defaultPartialFailureOutcome == null) {
+            defaultPartialFailureOutcome = outcome;
         }
     }
 
     private void loadPdfFile(File file) {
         try {
             byte[] bytes = Files.readAllBytes(file.toPath());
-            binaryFiles.put(file.getName(), bytes);
-            binaryFiles.put(FilenameUtils.getBaseName(file.getName()), bytes);
+            pdfFiles.put(file.getName(), bytes);
+            pdfFiles.put(FilenameUtils.getBaseName(file.getName()), bytes);
             log.info("Loaded PDF rendering: {} ({} bytes)", file.getName(), bytes.length);
         } catch (Exception e) {
             log.error("Failed to read PDF file {}: {}", file.getName(), e.getMessage());
@@ -181,12 +203,10 @@ public class DocumentRepositoryImpl implements DocumentRepository {
     private void indexDocumentBundle(Bundle bundle) {
         String id = bundle.getIdPart();
         if (id != null) {
-            documentBundles.put(id, bundle);
-            documentBundles.put("Bundle/" + id, bundle);
+            documentBundlesByIdentifier.put(id, bundle);
         }
-
         if (bundle.hasIdentifier() && bundle.getIdentifier().hasValue()) {
-            documentBundles.putIfAbsent(bundle.getIdentifier().getValue(), bundle);
+            documentBundlesByIdentifier.putIfAbsent(bundle.getIdentifier().getValue(), bundle);
         }
     }
 
@@ -204,12 +224,7 @@ public class DocumentRepositoryImpl implements DocumentRepository {
             if (res instanceof DocumentReference docRef) {
                 indexDocumentReference(docRef);
             } else if (res instanceof OperationOutcome outcome) {
-                if (outcome.hasIdElement()) {
-                    operationOutcomes.put(outcome.getIdPart(), outcome);
-                }
-                if (defaultPartialFailureOutcome == null) {
-                    defaultPartialFailureOutcome = outcome;
-                }
+                indexOperationOutcome(outcome);
             }
         }
     }
@@ -235,33 +250,33 @@ public class DocumentRepositoryImpl implements DocumentRepository {
                 String lastSegment = lastSegment(attachment.getUrl());
 
                 if ("application/pdf".equalsIgnoreCase(attachment.getContentType())) {
-                    byte[] pdfBytes = binaryFiles.get(lastSegment);
-                    if (pdfBytes == null) {
-                        pdfBytes = binaryFiles.get(lastSegment + ".pdf");
-                    }
+                    byte[] pdfBytes = pdfFile(lastSegment);
                     if (pdfBytes != null) {
-                        binaryFiles.put(pdfKey(id), pdfBytes);
+                        renderingByDocRefId.putIfAbsent(id, pdfBytes);
                     }
                 } else {
-                    Bundle matchedBundle = documentBundles.get(lastSegment);
-                    if (matchedBundle != null) {
-                        documentBundles.put(bundleKey(id), matchedBundle);
+                    Bundle payload = documentBundlesByIdentifier.get(lastSegment);
+                    if (payload != null) {
+                        payloadByDocRefId.putIfAbsent(id, payload);
                     }
                 }
             }
 
-            if (!documentBundles.containsKey(bundleKey(id)) && docRef.hasMasterIdentifier()) {
-                Bundle matched = documentBundles.get(docRef.getMasterIdentifier().getValue());
-                if (matched != null) {
-                    documentBundles.put(bundleKey(id), matched);
+            // The IG's uniqueId convention: Bundle.identifier of the payload equals the
+            // DocumentReference masterIdentifier, which is the reliable link when the
+            // attachment URL points at an id this hub does not use internally.
+            if (!payloadByDocRefId.containsKey(id) && docRef.hasMasterIdentifier()) {
+                Bundle payload = documentBundlesByIdentifier.get(docRef.getMasterIdentifier().getValue());
+                if (payload != null) {
+                    payloadByDocRefId.put(id, payload);
                 }
             }
 
             String configuredPdf = properties.getPdfRenderings().get(id);
-            if (configuredPdf != null && !binaryFiles.containsKey(pdfKey(id))) {
-                byte[] pdfBytes = binaryFiles.get(configuredPdf);
+            if (configuredPdf != null && !renderingByDocRefId.containsKey(id)) {
+                byte[] pdfBytes = pdfFile(configuredPdf);
                 if (pdfBytes != null) {
-                    binaryFiles.put(pdfKey(id), pdfBytes);
+                    renderingByDocRefId.put(id, pdfBytes);
                     log.debug("DocumentReference {} advertises hub rendering {}", id, configuredPdf);
                 } else {
                     log.warn("Configured PDF rendering '{}' for DocumentReference {} was not found in {}",
@@ -271,12 +286,13 @@ public class DocumentRepositoryImpl implements DocumentRepository {
         }
     }
 
-    private static String bundleKey(String docRefId) {
-        return "DocRef:" + docRefId;
+    private byte[] pdfFile(String nameOrBaseName) {
+        byte[] bytes = pdfFiles.get(nameOrBaseName);
+        return bytes != null ? bytes : pdfFiles.get(nameOrBaseName + ".pdf");
     }
 
-    private static String pdfKey(String docRefId) {
-        return "DocRefPdf:" + docRefId;
+    private long countPdfFiles() {
+        return pdfFiles.keySet().stream().filter(name -> name.endsWith(".pdf")).count();
     }
 
     private static String lastSegment(String url) {
@@ -477,14 +493,12 @@ public class DocumentRepositoryImpl implements DocumentRepository {
 
     @Override
     public Optional<Bundle> findDocumentBundleForReference(String referenceOrId) {
-        return findDocumentReference(referenceOrId)
-                .map(docRef -> documentBundles.get(bundleKey(docRef.getIdPart())));
+        return findDocumentReference(referenceOrId).map(docRef -> payloadByDocRefId.get(docRef.getIdPart()));
     }
 
     @Override
     public Optional<byte[]> findPdfForReference(String referenceOrId) {
-        return findDocumentReference(referenceOrId)
-                .map(docRef -> binaryFiles.get(pdfKey(docRef.getIdPart())));
+        return findDocumentReference(referenceOrId).map(docRef -> renderingByDocRefId.get(docRef.getIdPart()));
     }
 
     @Override
@@ -549,6 +563,6 @@ public class DocumentRepositoryImpl implements DocumentRepository {
 
     @Override
     public int getDocumentBundleCount() {
-        return (int) documentBundles.values().stream().distinct().count();
+        return (int) documentBundlesByIdentifier.values().stream().distinct().count();
     }
 }

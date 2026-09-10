@@ -12,21 +12,20 @@
     {
       "resource": [
         {
+          "supportedProfile": [
+            "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-interhub-minimal-documentreference"
+          ],
           "interaction": [
             {
               "code": "search-type",
-              "documentation": "Mandatory document discovery via HTTP POST to [base]/DocumentReference/_search with application/x-www-form-urlencoded body. Responding hubs SHALL support POST search. Servers MAY additionally support GET search where required for generic IHE MHD conformance."
-            },
-            {
-              "code": "read",
-              "documentation": "Optional/conditional read of DocumentReference resources by ID."
+              "documentation": "Mandatory document discovery via HTTP POST to [base]/DocumentReference/_search with application/x-www-form-urlencoded body. Responding hubs SHALL support POST search. Servers MAY additionally support GET search where required for generic IHE MHD conformance, but Belgian consumers SHALL NOT use it. No read, create, update, delete or history interaction is part of this transaction: the Interhub surface is read-only and consists of this search plus $retrieve-document."
             }
           ],
           "operation": [
             {
               "name": "retrieve-document",
               "definition": "https://www.ehealth.fgov.be/standards/fhir/interhub/OperationDefinition/be-op-retrieve-document",
-              "documentation": "Document retrieval operation invoked via HTTP POST [base]/DocumentReference/$retrieve-document. Accepts a Parameters resource referencing the target DocumentReference and returns the full Document Bundle (or Binary payload) directly."
+              "documentation": "Document retrieval operation invoked via HTTP POST [base]/DocumentReference/$retrieve-document. Accepts a Parameters resource referencing the target DocumentReference and returns the BeInterhubDocumentBundle (Bundle.type = #document) directly, or — under Accept: application/pdf — the hub-rendered PDF as a raw binary stream. This operation replaces a FHIR read on Bundle or Binary: a GET read would put the document identifier in the URL, which the Belgian profile forbids (see transactions.md §3.2)."
             }
           ],
           "searchParam": [
@@ -69,24 +68,29 @@
               "name": "identifier",
               "type": "token",
               "documentation": "Universal or local document identifier."
+            },
+            {
+              "name": "searchtype",
+              "type": "token",
+              "documentation": "Belgian search scope: 'federated' (default) lets the responding hub fan out to its connected hub sources and partner hubs; 'local' restricts the answer to the hub's own index, and therefore reports no downstream partial failure."
+            },
+            {
+              "name": "_count",
+              "type": "number",
+              "documentation": "Maximum number of results per page."
+            },
+            {
+              "name": "_sort",
+              "type": "string",
+              "documentation": "Result ordering: '-date' (default, most recent first) or 'date'."
             }
           ],
           "type": "DocumentReference",
           "profile": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-interhub-documentreference"
-        },
-        {
-          "interaction": [
-            {
-              "code": "read"
-            }
-          ],
-          "type": "Bundle",
-          "profile": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-interhub-document-bundle",
-          "documentation": "Retrieval of complete FHIR Document Bundles (type=document) by ID where standard GET read is supported in backend/downstream repositories."
         }
       ],
       "mode": "server",
-      "documentation": "Belgian Federated Interhub Document Sharing Server (MHD ITI-67 Responder / ITI-68 Responder). Mandates HTTP POST for both metadata search and document retrieval to prevent sensitive patient data leakage in network access logs."
+      "documentation": "Belgian Federated Interhub Document Sharing Server (MHD ITI-67 Responder / ITI-68 Responder). Exposes exactly two transactions — getTransactionList and getTransaction — and mandates HTTP POST for both, so that neither the patient SSIN nor the clinical search criteria ever appear in a URL, a proxy access log or a browser history."
     }
   ],
   "status": "active",
