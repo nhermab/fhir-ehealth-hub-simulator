@@ -78,9 +78,9 @@ public abstract class AbstractSimulatorTest {
 
     protected ResponseEntity<String> postForm(String path, MultiValueMap<String, String> form, HttpHeaders extra) {
         HttpHeaders headers = new HttpHeaders();
-        headers.addAll(extra);
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.set(HttpHeaders.ACCEPT, FHIR_JSON);
+        headers.putAll(extra);
         return restTemplate.postForEntity(url(path), new HttpEntity<>(form, headers), String.class);
     }
 
@@ -136,6 +136,11 @@ public abstract class AbstractSimulatorTest {
     }
 
     protected ResponseEntity<String> retrieveAt(String path, String body, String accept) {
+        return postJson(path, body, accept);
+    }
+
+    /** POSTs a FHIR JSON body to any path, used to probe interactions the server should refuse. */
+    protected ResponseEntity<String> postJson(String path, String body, String accept) {
         return restTemplate.postForEntity(url(path), new HttpEntity<>(body, fhirJsonHeaders(accept)), String.class);
     }
 
