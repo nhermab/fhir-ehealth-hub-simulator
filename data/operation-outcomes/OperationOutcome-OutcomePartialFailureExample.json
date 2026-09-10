@@ -1,0 +1,36 @@
+{
+  "resourceType": "OperationOutcome",
+  "id": "OutcomePartialFailureExample",
+  "issue": [
+    {
+      "details": {
+        "coding": [
+          {
+            "code": "timeout",
+            "system": "http://terminology.hl7.org/CodeSystem/issue-type",
+            "display": "Timeout"
+          }
+        ],
+        "text": "Downstream clinical repository timeout"
+      },
+      "severity": "warning",
+      "code": "timeout",
+      "diagnostics": "Timeout communicating with connected laboratory repository (NIHDI: 71000012). Results from this facility may be incomplete or omitted from this list."
+    },
+    {
+      "details": {
+        "coding": [
+          {
+            "code": "transient",
+            "system": "http://terminology.hl7.org/CodeSystem/issue-type",
+            "display": "Transient Issue"
+          }
+        ],
+        "text": "Downstream system unavailable (maintenance)"
+      },
+      "severity": "warning",
+      "code": "transient",
+      "diagnostics": "Connected hub source (NIHDI: 72000034) is currently unavailable due to scheduled maintenance. Historical documents from this organisation are temporarily excluded."
+    }
+  ]
+}

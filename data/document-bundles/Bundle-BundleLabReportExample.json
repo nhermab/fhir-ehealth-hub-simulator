@@ -1,0 +1,441 @@
+{
+  "resourceType": "Bundle",
+  "id": "BundleLabReportExample",
+  "meta": {
+    "profile": [
+      "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-interhub-document-bundle"
+    ]
+  },
+  "identifier": {
+    "system": "urn:ietf:rfc:3986",
+    "value": "urn:oid:1.3.6.1.4.1.21297.100.2.1.815933567"
+  },
+  "entry": [
+    {
+      "fullUrl": "http://example.org/Composition/CompLabReportExample",
+      "resource": {
+        "resourceType": "Composition",
+        "id": "CompLabReportExample",
+        "meta": {
+          "profile": [
+            "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-interhub-lab-composition"
+          ]
+        },
+        "identifier": {
+          "system": "https://uzleuven.be/lab/compositions",
+          "value": "COMP-LAB-2026-815933567"
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "labresult",
+                "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-transaction",
+                "display": "Laboratory Result"
+              }
+            ]
+          }
+        ],
+        "author": [
+          {
+            "reference": "Practitioner/DrDanieleGovaerts"
+          },
+          {
+            "reference": "Organization/OrgUZLeuven"
+          }
+        ],
+        "section": [
+          {
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Clinical Biochemistry:</b> Fasting glucose: 92 mg/dL (Normal). Serum creatinine: 0.95 mg/dL (Normal).</p></div>"
+            },
+            "entry": [
+              {
+                "reference": "DiagnosticReport/DiagnosticReportLabExample"
+              },
+              {
+                "reference": "Observation/ObsGlucoseExample"
+              },
+              {
+                "reference": "Observation/ObsCreatinineExample"
+              }
+            ],
+            "title": "Clinical Biochemistry",
+            "code": {
+              "coding": [
+                {
+                  "code": "18719-5",
+                  "system": "http://loinc.org",
+                  "display": "Chemistry studies (set)"
+                }
+              ]
+            }
+          }
+        ],
+        "type": {
+          "coding": [
+            {
+              "code": "11502-2",
+              "system": "http://loinc.org",
+              "display": "Laboratory report"
+            }
+          ]
+        },
+        "status": "final",
+        "subject": {
+          "reference": "Patient/PatientPeeters"
+        },
+        "date": "2026-03-15T10:30:00Z",
+        "title": "Biochemistry & Hematology Laboratory Report",
+        "custodian": {
+          "reference": "Organization/OrgUZLeuven"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://example.org/DiagnosticReport/DiagnosticReportLabExample",
+      "resource": {
+        "resourceType": "DiagnosticReport",
+        "id": "DiagnosticReportLabExample",
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "LAB",
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "performer": [
+          {
+            "reference": "Organization/OrgUZLeuven"
+          }
+        ],
+        "resultsInterpreter": [
+          {
+            "reference": "Practitioner/DrDanieleGovaerts"
+          }
+        ],
+        "result": [
+          {
+            "reference": "Observation/ObsGlucoseExample"
+          },
+          {
+            "reference": "Observation/ObsCreatinineExample"
+          }
+        ],
+        "specimen": [
+          {
+            "reference": "Specimen/SpecimenBloodExample"
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "code": "11502-2",
+              "system": "http://loinc.org",
+              "display": "Laboratory report"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/PatientPeeters"
+        },
+        "effectiveDateTime": "2026-03-15T08:15:00Z",
+        "issued": "2026-03-15T10:30:00Z",
+        "conclusion": "All fasting biochemistry parameters within normal reference limits."
+      }
+    },
+    {
+      "fullUrl": "http://example.org/Observation/ObsGlucoseExample",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "ObsGlucoseExample",
+        "meta": {
+          "profile": [
+            "https://www.ehealth.fgov.be/standards/fhir/core-clinical/StructureDefinition/be-observation"
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "LAB",
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "performer": [
+          {
+            "reference": "Practitioner/DrDanieleGovaerts"
+          }
+        ],
+        "referenceRange": [
+          {
+            "low": {
+              "value": 70,
+              "code": "mg/dL",
+              "system": "http://unitsofmeasure.org",
+              "unit": "mg/dL"
+            },
+            "high": {
+              "value": 99,
+              "code": "mg/dL",
+              "system": "http://unitsofmeasure.org",
+              "unit": "mg/dL"
+            }
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "code": "1558-6",
+              "system": "http://loinc.org",
+              "display": "Fasting glucose [Mass/volume] in Serum or Plasma"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/PatientPeeters"
+        },
+        "effectiveDateTime": "2026-03-15T08:15:00Z",
+        "valueQuantity": {
+          "value": 92,
+          "code": "mg/dL",
+          "system": "http://unitsofmeasure.org",
+          "unit": "mg/dL"
+        },
+        "specimen": {
+          "reference": "Specimen/SpecimenBloodExample"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://example.org/Observation/ObsCreatinineExample",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "ObsCreatinineExample",
+        "meta": {
+          "profile": [
+            "https://www.ehealth.fgov.be/standards/fhir/core-clinical/StructureDefinition/be-observation"
+          ]
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "LAB",
+                "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+                "display": "Laboratory"
+              }
+            ]
+          }
+        ],
+        "performer": [
+          {
+            "reference": "Practitioner/DrDanieleGovaerts"
+          }
+        ],
+        "referenceRange": [
+          {
+            "low": {
+              "value": 0.7,
+              "code": "mg/dL",
+              "system": "http://unitsofmeasure.org",
+              "unit": "mg/dL"
+            },
+            "high": {
+              "value": 1.2,
+              "code": "mg/dL",
+              "system": "http://unitsofmeasure.org",
+              "unit": "mg/dL"
+            }
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "code": "2160-0",
+              "system": "http://loinc.org",
+              "display": "Creatinine [Mass/volume] in Serum or Plasma"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/PatientPeeters"
+        },
+        "effectiveDateTime": "2026-03-15T08:15:00Z",
+        "valueQuantity": {
+          "value": 0.95,
+          "code": "mg/dL",
+          "system": "http://unitsofmeasure.org",
+          "unit": "mg/dL"
+        },
+        "specimen": {
+          "reference": "Specimen/SpecimenBloodExample"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://example.org/Specimen/SpecimenBloodExample",
+      "resource": {
+        "resourceType": "Specimen",
+        "id": "SpecimenBloodExample",
+        "type": {
+          "coding": [
+            {
+              "code": "119297000",
+              "system": "http://snomed.info/sct",
+              "display": "Blood specimen"
+            }
+          ]
+        },
+        "collection": {
+          "collectedDateTime": "2026-03-15T08:15:00Z"
+        },
+        "subject": {
+          "reference": "Patient/PatientPeeters"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://example.org/Patient/PatientPeeters",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "PatientPeeters",
+        "meta": {
+          "profile": [
+            "https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-patient"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/ssin",
+            "value": "79080412345"
+          },
+          {
+            "system": "urn:oid:1.3.6.1.4.1.21297.100.1.1",
+            "value": "79080412345"
+          }
+        ],
+        "name": [
+          {
+            "given": [
+              "Jan"
+            ],
+            "family": "Peeters"
+          }
+        ],
+        "address": [
+          {
+            "line": [
+              "Kerkstraat",
+              "12"
+            ],
+            "_line": [
+              {
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName",
+                    "valueString": "Kerkstraat"
+                  }
+                ]
+              },
+              {
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber",
+                    "valueString": "12"
+                  }
+                ]
+              }
+            ],
+            "city": "Leuven",
+            "postalCode": "3000",
+            "country": "BEL"
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1979-08-04"
+      }
+    },
+    {
+      "fullUrl": "http://example.org/Practitioner/DrDanieleGovaerts",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "DrDanieleGovaerts",
+        "meta": {
+          "profile": [
+            "https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-practitioner"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/nihdi",
+            "value": "10000007999"
+          },
+          {
+            "system": "urn:oid:1.3.6.1.4.1.21297.100.9.1",
+            "value": "10000007999"
+          }
+        ],
+        "name": [
+          {
+            "given": [
+              "Danièle"
+            ],
+            "family": "Govaerts"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "http://example.org/Organization/OrgUZLeuven",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "OrgUZLeuven",
+        "meta": {
+          "profile": [
+            "https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-organization"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/nihdi",
+            "value": "71000012"
+          },
+          {
+            "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/cbe",
+            "value": "0419052173"
+          },
+          {
+            "system": "urn:oid:1.3.6.1.4.1.21297.100.11.1",
+            "value": "71000012"
+          }
+        ],
+        "type": [
+          {
+            "coding": [
+              {
+                "code": "orghospital",
+                "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-hcparty",
+                "display": "hospital"
+              }
+            ]
+          }
+        ],
+        "name": "UZ Leuven"
+      }
+    }
+  ],
+  "type": "document",
+  "timestamp": "2026-03-15T10:30:00Z"
+}

@@ -1,0 +1,27 @@
+{
+  "resourceType": "Practitioner",
+  "id": "DrJeanDepondt",
+  "meta": {
+    "profile": [
+      "https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-practitioner"
+    ]
+  },
+  "identifier": [
+    {
+      "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/nihdi",
+      "value": "19876543201"
+    },
+    {
+      "system": "urn:oid:1.3.6.1.4.1.21297.100.9.1",
+      "value": "19876543201"
+    }
+  ],
+  "name": [
+    {
+      "given": [
+        "Jean"
+      ],
+      "family": "Depondt"
+    }
+  ]
+}

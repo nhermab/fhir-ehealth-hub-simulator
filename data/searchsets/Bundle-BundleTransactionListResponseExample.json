@@ -1,0 +1,671 @@
+{
+  "resourceType": "Bundle",
+  "id": "BundleTransactionListResponseExample",
+  "entry": [
+    {
+      "search": {
+        "mode": "match"
+      },
+      "fullUrl": "https://hub.cozo.be/fhir/DocumentReference/DocRefLabReportContainedExample",
+      "resource": {
+        "resourceType": "DocumentReference",
+        "id": "DocRefLabReportContainedExample",
+        "meta": {
+          "profile": [
+            "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-interhub-documentreference"
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-ext-home-community-id",
+            "valueUri": "urn:oid:1.3.6.1.4.1.21297.1.3"
+          },
+          {
+            "extension": [
+              {
+                "url": "access",
+                "valueCode": "yes"
+              },
+              {
+                "url": "accessDate",
+                "valueDate": "2026-03-15"
+              }
+            ],
+            "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-ext-patient-access"
+          },
+          {
+            "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-ext-record-datetime",
+            "valueInstant": "2026-03-15T10:35:00Z"
+          }
+        ],
+        "masterIdentifier": {
+          "system": "urn:ietf:rfc:3986",
+          "value": "urn:oid:1.3.6.1.4.1.21297.100.2.1.815933567"
+        },
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:oid:1.3.6.1.4.1.21297.100.2.1.815933567"
+          },
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:uuid:8b3e2365-5136-46b5-901d-5b32ec8ef991"
+          },
+          {
+            "system": "https://uzleuven.be/lab/reports",
+            "value": "LAB-2026-03-815933567"
+          }
+        ],
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-transaction",
+                "code": "labresult",
+                "display": "Laboratory Result"
+              }
+            ]
+          }
+        ],
+        "type": {
+          "coding": [
+            {
+              "code": "11502-2",
+              "system": "http://loinc.org",
+              "display": "Laboratory report"
+            }
+          ]
+        },
+        "subject": {
+          "identifier": {
+            "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/ssin",
+            "value": "79080412345"
+          },
+          "reference": "Patient/PatientPeeters"
+        },
+        "securityLabel": [
+          {
+            "coding": [
+              {
+                "code": "N",
+                "system": "http://terminology.hl7.org/CodeSystem/v3-Confidentiality",
+                "display": "Normal"
+              }
+            ]
+          }
+        ],
+        "contained": [
+          {
+            "resourceType": "Patient",
+            "id": "ContainedPatient",
+            "meta": {
+              "profile": [
+                "https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-patient"
+              ]
+            },
+            "identifier": [
+              {
+                "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/ssin",
+                "value": "79080412345"
+              }
+            ],
+            "name": [
+              {
+                "given": [
+                  "Jan"
+                ],
+                "family": "Peeters"
+              }
+            ],
+            "gender": "male",
+            "birthDate": "1979-08-04"
+          },
+          {
+            "resourceType": "Organization",
+            "id": "ContainedHubCoZo",
+            "meta": {
+              "profile": [
+                "https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-organization"
+              ]
+            },
+            "identifier": [
+              {
+                "system": "urn:ietf:rfc:3986",
+                "value": "urn:oid:1.3.6.1.4.1.21297.1.3"
+              }
+            ],
+            "type": [
+              {
+                "coding": [
+                  {
+                    "code": "application",
+                    "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-hcparty",
+                    "display": "software application"
+                  }
+                ]
+              }
+            ],
+            "name": "CoZo Regional Hub"
+          },
+          {
+            "resourceType": "Organization",
+            "id": "ContainedOrgUZLeuven",
+            "meta": {
+              "profile": [
+                "https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-organization"
+              ]
+            },
+            "identifier": [
+              {
+                "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/nihdi",
+                "value": "71000012"
+              },
+              {
+                "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/cbe",
+                "value": "0419052173"
+              }
+            ],
+            "type": [
+              {
+                "coding": [
+                  {
+                    "code": "orghospital",
+                    "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-hcparty",
+                    "display": "hospital"
+                  }
+                ]
+              }
+            ],
+            "name": "UZ Leuven"
+          },
+          {
+            "resourceType": "Practitioner",
+            "id": "ContainedDrGovaerts",
+            "meta": {
+              "profile": [
+                "https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-practitioner"
+              ]
+            },
+            "identifier": [
+              {
+                "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/nihdi",
+                "value": "10000007999"
+              }
+            ],
+            "name": [
+              {
+                "given": [
+                  "Danièle"
+                ],
+                "family": "Govaerts"
+              }
+            ]
+          }
+        ],
+        "context": {
+          "period": {
+            "start": "2026-03-15T08:00:00Z",
+            "end": "2026-03-15T10:30:00Z"
+          },
+          "sourcePatientInfo": {
+            "reference": "#ContainedPatient"
+          },
+          "facilityType": {
+            "coding": [
+              {
+                "code": "257622000",
+                "system": "http://snomed.info/sct",
+                "display": "Healthcare related organization"
+              }
+            ]
+          },
+          "practiceSetting": {
+            "coding": [
+              {
+                "code": "394595002",
+                "system": "http://snomed.info/sct",
+                "display": "Pathology"
+              }
+            ]
+          }
+        },
+        "author": [
+          {
+            "extension": [
+              {
+                "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-ext-hcparty-type",
+                "valueCoding": {
+                  "code": "application",
+                  "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-hcparty",
+                  "display": "software application"
+                }
+              }
+            ],
+            "reference": "#ContainedHubCoZo"
+          },
+          {
+            "extension": [
+              {
+                "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-ext-hcparty-type",
+                "valueCoding": {
+                  "code": "orghospital",
+                  "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-hcparty",
+                  "display": "hospital"
+                }
+              }
+            ],
+            "reference": "#ContainedOrgUZLeuven"
+          },
+          {
+            "extension": [
+              {
+                "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-ext-hcparty-type",
+                "valueCoding": {
+                  "code": "persphysician",
+                  "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-hcparty",
+                  "display": "physician"
+                }
+              }
+            ],
+            "reference": "#ContainedDrGovaerts"
+          }
+        ],
+        "authenticator": {
+          "extension": [
+            {
+              "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-ext-hcparty-type",
+              "valueCoding": {
+                "code": "persphysician",
+                "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-hcparty",
+                "display": "physician"
+              }
+            }
+          ],
+          "reference": "#ContainedDrGovaerts"
+        },
+        "custodian": {
+          "extension": [
+            {
+              "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-ext-hcparty-type",
+              "valueCoding": {
+                "code": "orghospital",
+                "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-hcparty",
+                "display": "hospital"
+              }
+            }
+          ],
+          "reference": "#ContainedOrgUZLeuven"
+        },
+        "relatesTo": [
+          {
+            "target": {
+              "identifier": {
+                "system": "urn:ietf:rfc:3986",
+                "value": "urn:oid:1.3.6.1.4.1.21297.100.2.1.815933566"
+              },
+              "display": "Preliminary laboratory report of 2026-03-15 08:40"
+            },
+            "code": "replaces"
+          }
+        ],
+        "content": [
+          {
+            "attachment": {
+              "contentType": "application/fhir+json",
+              "language": "nl-BE",
+              "url": "https://hub.cozo.be/fhir/Bundle/bundle-lab-report-example-01",
+              "title": "Lab Report - Peeters Jan",
+              "creation": "2026-03-15T10:30:00Z"
+            },
+            "format": {
+              "code": "urn:be:fgov:ehealth:lab:document:1.0"
+            }
+          }
+        ],
+        "status": "current",
+        "date": "2026-03-15T10:30:00Z",
+        "description": "Comprehensive Blood Biochemistry and Hematology Laboratory Report"
+      }
+    },
+    {
+      "search": {
+        "mode": "match"
+      },
+      "fullUrl": "https://hub.cozo.be/fhir/DocumentReference/DocRefTelemonitoringExample",
+      "resource": {
+        "resourceType": "DocumentReference",
+        "id": "DocRefTelemonitoringExample",
+        "meta": {
+          "profile": [
+            "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-interhub-documentreference"
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-ext-home-community-id",
+            "valueUri": "urn:oid:1.3.6.1.4.1.21297.1.3"
+          },
+          {
+            "extension": [
+              {
+                "url": "access",
+                "valueCode": "yes"
+              }
+            ],
+            "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-ext-patient-access"
+          },
+          {
+            "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-ext-record-datetime",
+            "valueInstant": "2026-01-02T09:00:00Z"
+          }
+        ],
+        "masterIdentifier": {
+          "system": "urn:ietf:rfc:3986",
+          "value": "urn:uuid:7ed170b3-38d1-4ba5-8a60-1f722b107707"
+        },
+        "identifier": [
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:uuid:7ed170b3-38d1-4ba5-8a60-1f722b107707"
+          },
+          {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:uuid:7ed170b3-38d1-4ba5-8a60-1f722b107707"
+          },
+          {
+            "system": "http://example.org/telemonitoring-id",
+            "value": "tm-holter-001"
+          }
+        ],
+        "category": [
+          {
+            "coding": [
+              {
+                "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-transaction",
+                "code": "telemonitoring",
+                "display": "Telemonitoring / Remote Patient Monitoring"
+              }
+            ]
+          }
+        ],
+        "type": {
+          "coding": [
+            {
+              "code": "18754-2",
+              "system": "http://loinc.org",
+              "display": "Ambulatory cardiac rhythm monitor (Holter) study"
+            }
+          ]
+        },
+        "subject": {
+          "identifier": {
+            "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/ssin",
+            "value": "79080412345"
+          },
+          "reference": "Patient/PatientPeeters"
+        },
+        "securityLabel": [
+          {
+            "coding": [
+              {
+                "code": "N",
+                "system": "http://terminology.hl7.org/CodeSystem/v3-Confidentiality",
+                "display": "Normal"
+              }
+            ]
+          }
+        ],
+        "contained": [
+          {
+            "resourceType": "Patient",
+            "id": "ContainedPatient",
+            "meta": {
+              "profile": [
+                "https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-patient"
+              ]
+            },
+            "identifier": [
+              {
+                "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/ssin",
+                "value": "79080412345"
+              }
+            ],
+            "name": [
+              {
+                "given": [
+                  "Jan"
+                ],
+                "family": "Peeters"
+              }
+            ],
+            "gender": "male",
+            "birthDate": "1979-08-04"
+          },
+          {
+            "resourceType": "Organization",
+            "id": "ContainedHubCoZo",
+            "meta": {
+              "profile": [
+                "https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-organization"
+              ]
+            },
+            "identifier": [
+              {
+                "system": "urn:ietf:rfc:3986",
+                "value": "urn:oid:1.3.6.1.4.1.21297.1.3"
+              }
+            ],
+            "type": [
+              {
+                "coding": [
+                  {
+                    "code": "application",
+                    "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-hcparty",
+                    "display": "software application"
+                  }
+                ]
+              }
+            ],
+            "name": "CoZo Regional Hub"
+          },
+          {
+            "resourceType": "Organization",
+            "id": "ContainedOrgUZLeuven",
+            "meta": {
+              "profile": [
+                "https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-organization"
+              ]
+            },
+            "identifier": [
+              {
+                "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/nihdi",
+                "value": "71000012"
+              },
+              {
+                "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/cbe",
+                "value": "0419052173"
+              }
+            ],
+            "type": [
+              {
+                "coding": [
+                  {
+                    "code": "orghospital",
+                    "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-hcparty",
+                    "display": "hospital"
+                  }
+                ]
+              }
+            ],
+            "name": "UZ Leuven"
+          },
+          {
+            "resourceType": "Practitioner",
+            "id": "ContainedDrDepondt",
+            "meta": {
+              "profile": [
+                "https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-practitioner"
+              ]
+            },
+            "identifier": [
+              {
+                "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/nihdi",
+                "value": "19876543201"
+              }
+            ],
+            "name": [
+              {
+                "given": [
+                  "Jean"
+                ],
+                "family": "Depondt"
+              }
+            ]
+          }
+        ],
+        "context": {
+          "period": {
+            "start": "2026-01-01T08:00:00Z",
+            "end": "2026-01-02T08:00:00Z"
+          },
+          "sourcePatientInfo": {
+            "reference": "#ContainedPatient"
+          },
+          "facilityType": {
+            "coding": [
+              {
+                "code": "257622000",
+                "system": "http://snomed.info/sct",
+                "display": "Healthcare related organization"
+              }
+            ]
+          },
+          "practiceSetting": {
+            "coding": [
+              {
+                "code": "394579002",
+                "system": "http://snomed.info/sct",
+                "display": "Cardiology"
+              }
+            ]
+          }
+        },
+        "author": [
+          {
+            "extension": [
+              {
+                "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-ext-hcparty-type",
+                "valueCoding": {
+                  "code": "application",
+                  "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-hcparty",
+                  "display": "software application"
+                }
+              }
+            ],
+            "reference": "#ContainedHubCoZo"
+          },
+          {
+            "extension": [
+              {
+                "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-ext-hcparty-type",
+                "valueCoding": {
+                  "code": "orghospital",
+                  "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-hcparty",
+                  "display": "hospital"
+                }
+              }
+            ],
+            "reference": "#ContainedOrgUZLeuven"
+          },
+          {
+            "extension": [
+              {
+                "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-ext-hcparty-type",
+                "valueCoding": {
+                  "code": "persphysician",
+                  "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-hcparty",
+                  "display": "physician"
+                }
+              }
+            ],
+            "reference": "#ContainedDrDepondt"
+          }
+        ],
+        "custodian": {
+          "extension": [
+            {
+              "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-ext-hcparty-type",
+              "valueCoding": {
+                "code": "orghospital",
+                "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-hcparty",
+                "display": "hospital"
+              }
+            }
+          ],
+          "reference": "#ContainedOrgUZLeuven"
+        },
+        "content": [
+          {
+            "attachment": {
+              "contentType": "application/fhir+json",
+              "language": "nl-BE",
+              "url": "https://hub.cozo.be/fhir/Bundle/bundle-telemonitoring-example-01",
+              "creation": "2026-01-02T08:30:00Z",
+              "title": "Holter Monitoring Report - Jan Peeters"
+            },
+            "format": {
+              "code": "urn:be:fgov:ehealth:telemonitoring:document:1.0"
+            }
+          }
+        ],
+        "status": "current",
+        "date": "2026-01-02T08:30:00Z",
+        "description": "24-Hour Continuous Holter ECG Monitoring Summary"
+      }
+    },
+    {
+      "search": {
+        "mode": "outcome"
+      },
+      "fullUrl": "urn:uuid:6a28746c-63cf-4a69-8db3-705a5a1f26f2",
+      "resource": {
+        "resourceType": "OperationOutcome",
+        "id": "OutcomePartialFailureExample",
+        "issue": [
+          {
+            "details": {
+              "coding": [
+                {
+                  "code": "timeout",
+                  "system": "http://terminology.hl7.org/CodeSystem/issue-type",
+                  "display": "Timeout"
+                }
+              ],
+              "text": "Downstream clinical repository timeout"
+            },
+            "severity": "warning",
+            "code": "timeout",
+            "diagnostics": "Timeout communicating with connected laboratory repository (NIHDI: 71000012). Results from this facility may be incomplete or omitted from this list."
+          },
+          {
+            "details": {
+              "coding": [
+                {
+                  "code": "transient",
+                  "system": "http://terminology.hl7.org/CodeSystem/issue-type",
+                  "display": "Transient Issue"
+                }
+              ],
+              "text": "Downstream system unavailable (maintenance)"
+            },
+            "severity": "warning",
+            "code": "transient",
+            "diagnostics": "Connected hub source (NIHDI: 72000034) is currently unavailable due to scheduled maintenance. Historical documents from this organisation are temporarily excluded."
+          }
+        ]
+      }
+    }
+  ],
+  "type": "searchset",
+  "total": 2
+}

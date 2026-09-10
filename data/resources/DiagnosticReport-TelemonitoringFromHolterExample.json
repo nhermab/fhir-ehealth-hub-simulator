@@ -1,0 +1,66 @@
+{
+  "resourceType": "DiagnosticReport",
+  "id": "TelemonitoringFromHolterExample",
+  "meta": {
+    "profile": [
+      "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/TelemonitoringDiagnosticReport"
+    ]
+  },
+  "extension": [
+    {
+      "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/source-telemonitoring-report",
+      "valueReference": {
+        "reference": "DiagnosticReport/HolterDiagnosticReport"
+      }
+    },
+    {
+      "valueIdentifier": {
+        "system": "http://example.org/telemonitoring-id",
+        "value": "tm-holter-001"
+      },
+      "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/telemonitoring-id"
+    },
+    {
+      "extension": [
+        {
+          "url": "carepathId",
+          "valueString": "holter-monitoring"
+        },
+        {
+          "url": "version",
+          "valueString": "1.0"
+        }
+      ],
+      "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/carepath"
+    },
+    {
+      "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/prescriber-application",
+      "valueString": "TeleMonApp v2.1"
+    }
+  ],
+  "performer": [
+    {
+      "reference": "Practitioner/PrescriberExample"
+    }
+  ],
+  "presentedForm": [
+    {
+      "contentType": "application/pdf",
+      "url": "https://storage.example.org/reports/holter-001.pdf",
+      "title": "Holter Monitoring Report"
+    }
+  ],
+  "status": "final",
+  "code": {
+    "coding": [
+      {
+        "code": "18754-2",
+        "system": "http://loinc.org",
+        "display": "Ambulatory cardiac rhythm monitor (Holter) study"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/PatientExample"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "resourceType": "DiagnosticReport",
+  "id": "HolterDiagnosticReport",
+  "meta": {
+    "profile": [
+      "http://hl7belgium.org/fhir/patient-monitoring/StructureDefinition/holter-diagnostic-report"
+    ]
+  },
+  "effectivePeriod": {
+    "start": "2026-01-01T08:00:00Z",
+    "end": "2026-01-02T08:00:00Z"
+  },
+  "performer": [
+    {
+      "reference": "Practitioner/PrescriberExample"
+    }
+  ],
+  "status": "final",
+  "code": {
+    "coding": [
+      {
+        "code": "18754-2",
+        "system": "http://loinc.org",
+        "display": "Ambulatory cardiac rhythm monitor (Holter) study"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/PatientExample"
+  }
+}

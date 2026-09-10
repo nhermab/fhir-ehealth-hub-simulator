@@ -1,0 +1,96 @@
+{
+  "resourceType": "CapabilityStatement",
+  "id": "BeInterhubDocumentResponder",
+  "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/CapabilityStatement/BeInterhubDocumentResponder",
+  "title": "Belgian Interhub Document Responder Capability Statement",
+  "description": "Defines the mandatory capabilities for Belgian eHealth Hubs and repositories responding to Interhub metadata discovery (getTransactionList / MHD ITI-67) and document retrieval (getTransaction / MHD ITI-68) requests via HTTP POST.",
+  "format": [
+    "json",
+    "xml"
+  ],
+  "rest": [
+    {
+      "resource": [
+        {
+          "interaction": [
+            {
+              "code": "search-type",
+              "documentation": "Mandatory document discovery via HTTP POST to [base]/DocumentReference/_search with application/x-www-form-urlencoded body. Responding hubs SHALL support POST search. Servers MAY additionally support GET search where required for generic IHE MHD conformance."
+            },
+            {
+              "code": "read",
+              "documentation": "Optional/conditional read of DocumentReference resources by ID."
+            }
+          ],
+          "operation": [
+            {
+              "name": "retrieve-document",
+              "definition": "https://www.ehealth.fgov.be/standards/fhir/interhub/OperationDefinition/be-op-retrieve-document",
+              "documentation": "Document retrieval operation invoked via HTTP POST [base]/DocumentReference/$retrieve-document. Accepts a Parameters resource referencing the target DocumentReference and returns the full Document Bundle (or Binary payload) directly."
+            }
+          ],
+          "searchParam": [
+            {
+              "name": "patient.identifier",
+              "type": "token",
+              "documentation": "Mandatory patient search parameter using national SSIN/INSS (system=https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/ssin or urn:oid:1.3.6.1.4.1.21297.100.1.1)."
+            },
+            {
+              "name": "category",
+              "type": "token",
+              "documentation": "Filters by Belgian CD-TRANSACTION code (e.g. sumehr, labresult, discharge, telemonitoring)."
+            },
+            {
+              "name": "type",
+              "type": "token",
+              "documentation": "Filters by clinical document type (LOINC code)."
+            },
+            {
+              "name": "date",
+              "type": "date",
+              "documentation": "Filters by document creation date range (using ge and le prefixes)."
+            },
+            {
+              "name": "author.identifier",
+              "type": "token",
+              "documentation": "Filters by authoring practitioner or institution NIHDI/SSIN/CBE identifier."
+            },
+            {
+              "name": "status",
+              "type": "token",
+              "documentation": "Document reference status (current, superseded)."
+            },
+            {
+              "name": "_id",
+              "type": "token",
+              "documentation": "Document logical ID."
+            },
+            {
+              "name": "identifier",
+              "type": "token",
+              "documentation": "Universal or local document identifier."
+            }
+          ],
+          "type": "DocumentReference",
+          "profile": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-interhub-documentreference"
+        },
+        {
+          "interaction": [
+            {
+              "code": "read"
+            }
+          ],
+          "type": "Bundle",
+          "profile": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-interhub-document-bundle",
+          "documentation": "Retrieval of complete FHIR Document Bundles (type=document) by ID where standard GET read is supported in backend/downstream repositories."
+        }
+      ],
+      "mode": "server",
+      "documentation": "Belgian Federated Interhub Document Sharing Server (MHD ITI-67 Responder / ITI-68 Responder). Mandates HTTP POST for both metadata search and document retrieval to prevent sensitive patient data leakage in network access logs."
+    }
+  ],
+  "status": "active",
+  "date": "2026-08-17",
+  "kind": "requirements",
+  "fhirVersion": "4.0.1"
+}

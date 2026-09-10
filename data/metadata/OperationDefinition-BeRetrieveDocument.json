@@ -1,0 +1,39 @@
+{
+  "resourceType": "OperationDefinition",
+  "id": "BeRetrieveDocument",
+  "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/OperationDefinition/be-op-retrieve-document",
+  "title": "Belgian Interhub Document Retrieval Operation ($retrieve-document)",
+  "description": "Defines the FHIR R4 operation used by Belgian initiating hubs to retrieve complete clinical document bundles or rendered binaries via HTTP POST, avoiding URL and query parameter leakage in network access logs.",
+  "resource": [
+    "DocumentReference"
+  ],
+  "parameter": [
+    {
+      "targetProfile": [
+        "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-interhub-documentreference"
+      ],
+      "name": "documentReference",
+      "use": "in",
+      "min": 1,
+      "max": "1",
+      "type": "Reference",
+      "documentation": "Reference to the BeInterhubDocumentReference representing the document to be retrieved."
+    },
+    {
+      "name": "return",
+      "use": "out",
+      "min": 0,
+      "max": "1",
+      "type": "Resource",
+      "documentation": "The retrieved clinical document payload: a FHIR Document Bundle (Bundle.type = #document) or a Binary resource representing raw/rendered content (e.g., PDF or CDA)."
+    }
+  ],
+  "name": "BeRetrieveDocument",
+  "status": "active",
+  "kind": "operation",
+  "code": "retrieve-document",
+  "system": false,
+  "type": true,
+  "instance": false,
+  "affectsState": false
+}

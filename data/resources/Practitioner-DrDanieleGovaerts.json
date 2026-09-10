@@ -1,0 +1,27 @@
+{
+  "resourceType": "Practitioner",
+  "id": "DrDanieleGovaerts",
+  "meta": {
+    "profile": [
+      "https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-practitioner"
+    ]
+  },
+  "identifier": [
+    {
+      "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/nihdi",
+      "value": "10000007999"
+    },
+    {
+      "system": "urn:oid:1.3.6.1.4.1.21297.100.9.1",
+      "value": "10000007999"
+    }
+  ],
+  "name": [
+    {
+      "given": [
+        "Danièle"
+      ],
+      "family": "Govaerts"
+    }
+  ]
+}

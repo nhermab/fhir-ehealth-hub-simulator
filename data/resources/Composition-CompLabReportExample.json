@@ -1,0 +1,79 @@
+{
+  "resourceType": "Composition",
+  "id": "CompLabReportExample",
+  "meta": {
+    "profile": [
+      "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-interhub-lab-composition"
+    ]
+  },
+  "identifier": {
+    "system": "https://uzleuven.be/lab/compositions",
+    "value": "COMP-LAB-2026-815933567"
+  },
+  "category": [
+    {
+      "coding": [
+        {
+          "code": "labresult",
+          "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-transaction",
+          "display": "Laboratory Result"
+        }
+      ]
+    }
+  ],
+  "author": [
+    {
+      "reference": "Practitioner/DrDanieleGovaerts"
+    },
+    {
+      "reference": "Organization/OrgUZLeuven"
+    }
+  ],
+  "section": [
+    {
+      "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>Clinical Biochemistry:</b> Fasting glucose: 92 mg/dL (Normal). Serum creatinine: 0.95 mg/dL (Normal).</p></div>"
+      },
+      "entry": [
+        {
+          "reference": "DiagnosticReport/DiagnosticReportLabExample"
+        },
+        {
+          "reference": "Observation/ObsGlucoseExample"
+        },
+        {
+          "reference": "Observation/ObsCreatinineExample"
+        }
+      ],
+      "title": "Clinical Biochemistry",
+      "code": {
+        "coding": [
+          {
+            "code": "18719-5",
+            "system": "http://loinc.org",
+            "display": "Chemistry studies (set)"
+          }
+        ]
+      }
+    }
+  ],
+  "type": {
+    "coding": [
+      {
+        "code": "11502-2",
+        "system": "http://loinc.org",
+        "display": "Laboratory report"
+      }
+    ]
+  },
+  "status": "final",
+  "subject": {
+    "reference": "Patient/PatientPeeters"
+  },
+  "date": "2026-03-15T10:30:00Z",
+  "title": "Biochemistry & Hematology Laboratory Report",
+  "custodian": {
+    "reference": "Organization/OrgUZLeuven"
+  }
+}

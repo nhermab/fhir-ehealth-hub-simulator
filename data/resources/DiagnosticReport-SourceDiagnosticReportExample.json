@@ -1,0 +1,17 @@
+{
+  "resourceType": "DiagnosticReport",
+  "id": "SourceDiagnosticReportExample",
+  "status": "final",
+  "code": {
+    "coding": [
+      {
+        "code": "18754-2",
+        "system": "http://loinc.org",
+        "display": "Ambulatory cardiac rhythm monitor (Holter) study"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/PatientExample"
+  }
+}

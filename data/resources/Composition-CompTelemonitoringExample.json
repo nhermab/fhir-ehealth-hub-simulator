@@ -1,0 +1,67 @@
+{
+  "resourceType": "Composition",
+  "id": "CompTelemonitoringExample",
+  "meta": {
+    "profile": [
+      "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-telemonitoring-composition"
+    ]
+  },
+  "identifier": {
+    "system": "https://uzleuven.be/telemonitoring/compositions",
+    "value": "COMP-TM-2026-001"
+  },
+  "category": [
+    {
+      "coding": [
+        {
+          "code": "telemonitoring",
+          "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-transaction",
+          "display": "Telemonitoring / Remote Patient Monitoring"
+        }
+      ]
+    }
+  ],
+  "author": [
+    {
+      "reference": "Practitioner/DrJeanDepondt"
+    },
+    {
+      "reference": "Organization/OrgUZLeuven"
+    }
+  ],
+  "section": [
+    {
+      "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>24h Holter Monitoring:</b> Mean Heart Rate: 74 bpm. Normal sinus rhythm maintained. No malignant ventricular arrhythmias observed.</p></div>"
+      },
+      "entry": [
+        {
+          "reference": "DiagnosticReport/TelemonitoringFromHolterExample"
+        },
+        {
+          "reference": "Observation/ObsHeartRateSummary"
+        }
+      ],
+      "title": "Holter Monitoring Results"
+    }
+  ],
+  "status": "final",
+  "type": {
+    "coding": [
+      {
+        "code": "18754-2",
+        "system": "http://loinc.org",
+        "display": "Ambulatory cardiac rhythm monitor (Holter) study"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/PatientPeeters"
+  },
+  "date": "2026-01-02T08:30:00Z",
+  "title": "24-Hour Continuous Ambulatory ECG Monitoring Summary",
+  "custodian": {
+    "reference": "Organization/OrgUZLeuven"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "resourceType": "Device",
+  "id": "DeviceHolterMonitor",
+  "deviceName": [
+    {
+      "name": "CardioTrack Holter X4",
+      "type": "model-name"
+    }
+  ],
+  "type": {
+    "coding": [
+      {
+        "code": "462729004",
+        "system": "http://snomed.info/sct",
+        "display": "Ambulatory cardiac telemetry monitor"
+      }
+    ]
+  }
+}

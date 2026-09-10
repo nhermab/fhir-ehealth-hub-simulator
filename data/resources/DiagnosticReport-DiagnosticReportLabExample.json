@@ -1,0 +1,54 @@
+{
+  "resourceType": "DiagnosticReport",
+  "id": "DiagnosticReportLabExample",
+  "category": [
+    {
+      "coding": [
+        {
+          "code": "LAB",
+          "system": "http://terminology.hl7.org/CodeSystem/v2-0074",
+          "display": "Laboratory"
+        }
+      ]
+    }
+  ],
+  "performer": [
+    {
+      "reference": "Organization/OrgUZLeuven"
+    }
+  ],
+  "resultsInterpreter": [
+    {
+      "reference": "Practitioner/DrDanieleGovaerts"
+    }
+  ],
+  "result": [
+    {
+      "reference": "Observation/ObsGlucoseExample"
+    },
+    {
+      "reference": "Observation/ObsCreatinineExample"
+    }
+  ],
+  "specimen": [
+    {
+      "reference": "Specimen/SpecimenBloodExample"
+    }
+  ],
+  "status": "final",
+  "code": {
+    "coding": [
+      {
+        "code": "11502-2",
+        "system": "http://loinc.org",
+        "display": "Laboratory report"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/PatientPeeters"
+  },
+  "effectiveDateTime": "2026-03-15T08:15:00Z",
+  "issued": "2026-03-15T10:30:00Z",
+  "conclusion": "All fasting biochemistry parameters within normal reference limits."
+}

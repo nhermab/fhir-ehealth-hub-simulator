@@ -1,0 +1,28 @@
+server:
+  port: 8080
+  servlet:
+    context-path: ""
+
+spring:
+  application:
+    name: fhir-ehealth-hub-simulator
+
+hub:
+  simulator:
+    # Directory where sample JSON files and PDFs are stored
+    data-dir: "./data"
+    # Strict modulo-97 checksum validation on patient SSIN (false allows synthetic test SSINs)
+    strict-ssin-checksum: false
+    # Simulate partial failure by default on getTransactionList
+    simulate-partial-failure: false
+    # Hub metadata
+    hub-oid: "urn:oid:1.3.6.1.4.1.21297.1.3"
+    hub-ehp: "1990000003"
+    hub-name: "CoZo Regional Hub"
+    server-base-url: "http://localhost:8080/fhir"
+
+logging:
+  level:
+    root: INFO
+    be.ehealth.hub.simulator: DEBUG
+    ca.uhn.fhir: INFO

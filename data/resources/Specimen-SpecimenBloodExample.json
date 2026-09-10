@@ -1,0 +1,19 @@
+{
+  "resourceType": "Specimen",
+  "id": "SpecimenBloodExample",
+  "type": {
+    "coding": [
+      {
+        "code": "119297000",
+        "system": "http://snomed.info/sct",
+        "display": "Blood specimen"
+      }
+    ]
+  },
+  "collection": {
+    "collectedDateTime": "2026-03-15T08:15:00Z"
+  },
+  "subject": {
+    "reference": "Patient/PatientPeeters"
+  }
+}

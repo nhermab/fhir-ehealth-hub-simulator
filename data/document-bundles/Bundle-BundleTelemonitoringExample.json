@@ -1,0 +1,325 @@
+{
+  "resourceType": "Bundle",
+  "id": "BundleTelemonitoringExample",
+  "meta": {
+    "profile": [
+      "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-interhub-document-bundle"
+    ]
+  },
+  "identifier": {
+    "system": "urn:ietf:rfc:3986",
+    "value": "urn:uuid:7ed170b3-38d1-4ba5-8a60-1f722b107707"
+  },
+  "entry": [
+    {
+      "fullUrl": "http://example.org/Composition/CompTelemonitoringExample",
+      "resource": {
+        "resourceType": "Composition",
+        "id": "CompTelemonitoringExample",
+        "meta": {
+          "profile": [
+            "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-telemonitoring-composition"
+          ]
+        },
+        "identifier": {
+          "system": "https://uzleuven.be/telemonitoring/compositions",
+          "value": "COMP-TM-2026-001"
+        },
+        "category": [
+          {
+            "coding": [
+              {
+                "code": "telemonitoring",
+                "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-transaction",
+                "display": "Telemonitoring / Remote Patient Monitoring"
+              }
+            ]
+          }
+        ],
+        "author": [
+          {
+            "reference": "Practitioner/DrJeanDepondt"
+          },
+          {
+            "reference": "Organization/OrgUZLeuven"
+          }
+        ],
+        "section": [
+          {
+            "text": {
+              "status": "generated",
+              "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><p><b>24h Holter Monitoring:</b> Mean Heart Rate: 74 bpm. Normal sinus rhythm maintained. No malignant ventricular arrhythmias observed.</p></div>"
+            },
+            "entry": [
+              {
+                "reference": "DiagnosticReport/TelemonitoringFromHolterExample"
+              },
+              {
+                "reference": "Observation/ObsHeartRateSummary"
+              }
+            ],
+            "title": "Holter Monitoring Results"
+          }
+        ],
+        "status": "final",
+        "type": {
+          "coding": [
+            {
+              "code": "18754-2",
+              "system": "http://loinc.org",
+              "display": "Ambulatory cardiac rhythm monitor (Holter) study"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/PatientPeeters"
+        },
+        "date": "2026-01-02T08:30:00Z",
+        "title": "24-Hour Continuous Ambulatory ECG Monitoring Summary",
+        "custodian": {
+          "reference": "Organization/OrgUZLeuven"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://example.org/DiagnosticReport/TelemonitoringFromHolterExample",
+      "resource": {
+        "resourceType": "DiagnosticReport",
+        "id": "TelemonitoringFromHolterExample",
+        "meta": {
+          "profile": [
+            "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/TelemonitoringDiagnosticReport"
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/source-telemonitoring-report",
+            "valueReference": {
+              "reference": "DiagnosticReport/HolterDiagnosticReport"
+            }
+          },
+          {
+            "valueIdentifier": {
+              "system": "http://example.org/telemonitoring-id",
+              "value": "tm-holter-001"
+            },
+            "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/telemonitoring-id"
+          },
+          {
+            "extension": [
+              {
+                "url": "carepathId",
+                "valueString": "holter-monitoring"
+              },
+              {
+                "url": "version",
+                "valueString": "1.0"
+              }
+            ],
+            "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/carepath"
+          },
+          {
+            "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/prescriber-application",
+            "valueString": "TeleMonApp v2.1"
+          }
+        ],
+        "performer": [
+          {
+            "reference": "Practitioner/PrescriberExample"
+          }
+        ],
+        "presentedForm": [
+          {
+            "contentType": "application/pdf",
+            "url": "https://storage.example.org/reports/holter-001.pdf",
+            "title": "Holter Monitoring Report"
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "code": "18754-2",
+              "system": "http://loinc.org",
+              "display": "Ambulatory cardiac rhythm monitor (Holter) study"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/PatientExample"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://example.org/Observation/ObsHeartRateSummary",
+      "resource": {
+        "resourceType": "Observation",
+        "id": "ObsHeartRateSummary",
+        "meta": {
+          "profile": [
+            "https://www.ehealth.fgov.be/standards/fhir/core-clinical/StructureDefinition/be-observation"
+          ]
+        },
+        "effectivePeriod": {
+          "start": "2026-01-01T08:00:00Z",
+          "end": "2026-01-02T08:00:00Z"
+        },
+        "performer": [
+          {
+            "reference": "Practitioner/DrJeanDepondt"
+          }
+        ],
+        "status": "final",
+        "code": {
+          "coding": [
+            {
+              "code": "8867-4",
+              "system": "http://loinc.org",
+              "display": "Heart rate"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/PatientPeeters"
+        },
+        "valueQuantity": {
+          "value": 74,
+          "code": "/min",
+          "system": "http://unitsofmeasure.org",
+          "unit": "beats/minute"
+        }
+      }
+    },
+    {
+      "fullUrl": "http://example.org/Patient/PatientPeeters",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "PatientPeeters",
+        "meta": {
+          "profile": [
+            "https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-patient"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/ssin",
+            "value": "79080412345"
+          },
+          {
+            "system": "urn:oid:1.3.6.1.4.1.21297.100.1.1",
+            "value": "79080412345"
+          }
+        ],
+        "name": [
+          {
+            "given": [
+              "Jan"
+            ],
+            "family": "Peeters"
+          }
+        ],
+        "address": [
+          {
+            "line": [
+              "Kerkstraat",
+              "12"
+            ],
+            "_line": [
+              {
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName",
+                    "valueString": "Kerkstraat"
+                  }
+                ]
+              },
+              {
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber",
+                    "valueString": "12"
+                  }
+                ]
+              }
+            ],
+            "city": "Leuven",
+            "postalCode": "3000",
+            "country": "BEL"
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1979-08-04"
+      }
+    },
+    {
+      "fullUrl": "http://example.org/Practitioner/DrJeanDepondt",
+      "resource": {
+        "resourceType": "Practitioner",
+        "id": "DrJeanDepondt",
+        "meta": {
+          "profile": [
+            "https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-practitioner"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/nihdi",
+            "value": "19876543201"
+          },
+          {
+            "system": "urn:oid:1.3.6.1.4.1.21297.100.9.1",
+            "value": "19876543201"
+          }
+        ],
+        "name": [
+          {
+            "given": [
+              "Jean"
+            ],
+            "family": "Depondt"
+          }
+        ]
+      }
+    },
+    {
+      "fullUrl": "http://example.org/Organization/OrgUZLeuven",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "OrgUZLeuven",
+        "meta": {
+          "profile": [
+            "https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-organization"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/nihdi",
+            "value": "71000012"
+          },
+          {
+            "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/cbe",
+            "value": "0419052173"
+          },
+          {
+            "system": "urn:oid:1.3.6.1.4.1.21297.100.11.1",
+            "value": "71000012"
+          }
+        ],
+        "type": [
+          {
+            "coding": [
+              {
+                "code": "orghospital",
+                "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-hcparty",
+                "display": "hospital"
+              }
+            ]
+          }
+        ],
+        "name": "UZ Leuven"
+      }
+    }
+  ],
+  "type": "document",
+  "timestamp": "2026-01-02T08:30:00Z"
+}

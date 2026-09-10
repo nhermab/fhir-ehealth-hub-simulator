@@ -1,0 +1,27 @@
+{
+  "resourceType": "Organization",
+  "id": "HubCoZo",
+  "meta": {
+    "profile": [
+      "https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-organization"
+    ]
+  },
+  "identifier": [
+    {
+      "system": "urn:ietf:rfc:3986",
+      "value": "urn:oid:1.3.6.1.4.1.21297.1.3"
+    }
+  ],
+  "type": [
+    {
+      "coding": [
+        {
+          "code": "application",
+          "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-hcparty",
+          "display": "software application"
+        }
+      ]
+    }
+  ],
+  "name": "CoZo (Collaboratief Zorgplatform)"
+}

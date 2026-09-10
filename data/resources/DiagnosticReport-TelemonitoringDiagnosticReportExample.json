@@ -1,0 +1,67 @@
+{
+  "resourceType": "DiagnosticReport",
+  "id": "TelemonitoringDiagnosticReportExample",
+  "meta": {
+    "profile": [
+      "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/TelemonitoringDiagnosticReport"
+    ]
+  },
+  "extension": [
+    {
+      "valueIdentifier": {
+        "system": "http://example.org/telemonitoring-id",
+        "value": "tm-12345"
+      },
+      "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/telemonitoring-id"
+    },
+    {
+      "extension": [
+        {
+          "url": "carepathId",
+          "valueString": "holter-monitoring"
+        },
+        {
+          "url": "version",
+          "valueString": "1.0"
+        }
+      ],
+      "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/carepath"
+    },
+    {
+      "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/prescriber-application",
+      "valueString": "TeleMonApp v2.1"
+    },
+    {
+      "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/source-telemonitoring-report",
+      "valueReference": {
+        "reference": "DiagnosticReport/SourceDiagnosticReportExample"
+      }
+    }
+  ],
+  "performer": [
+    {
+      "reference": "Practitioner/PrescriberExample"
+    }
+  ],
+  "presentedForm": [
+    {
+      "contentType": "application/pdf",
+      "language": "nl",
+      "url": "https://storage.example.org/attachments/doc1.pdf",
+      "title": "Monitoring Report"
+    }
+  ],
+  "status": "registered",
+  "code": {
+    "coding": [
+      {
+        "code": "telemonitoring",
+        "system": "http://example.org/service-types",
+        "display": "Telemonitoring"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/PatientExample"
+  }
+}

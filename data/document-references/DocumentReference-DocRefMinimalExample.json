@@ -1,0 +1,35 @@
+{
+  "resourceType": "DocumentReference",
+  "id": "DocRefMinimalExample",
+  "meta": {
+    "profile": [
+      "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-interhub-minimal-documentreference"
+    ]
+  },
+  "extension": [
+    {
+      "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-ext-home-community-id",
+      "valueUri": "urn:oid:1.3.6.1.4.1.21297.1.3"
+    }
+  ],
+  "masterIdentifier": {
+    "system": "urn:ietf:rfc:3986",
+    "value": "urn:oid:1.3.6.1.4.1.21297.100.2.1.999000111"
+  },
+  "subject": {
+    "identifier": {
+      "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/ssin",
+      "value": "79080412345"
+    },
+    "reference": "Patient/PatientPeeters"
+  },
+  "content": [
+    {
+      "attachment": {
+        "contentType": "application/fhir+json",
+        "url": "https://hub.cozo.be/fhir/Bundle/bundle-minimal-example-01"
+      }
+    }
+  ],
+  "status": "current"
+}

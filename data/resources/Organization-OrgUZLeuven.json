@@ -1,0 +1,35 @@
+{
+  "resourceType": "Organization",
+  "id": "OrgUZLeuven",
+  "meta": {
+    "profile": [
+      "https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-organization"
+    ]
+  },
+  "identifier": [
+    {
+      "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/nihdi",
+      "value": "71000012"
+    },
+    {
+      "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/cbe",
+      "value": "0419052173"
+    },
+    {
+      "system": "urn:oid:1.3.6.1.4.1.21297.100.11.1",
+      "value": "71000012"
+    }
+  ],
+  "type": [
+    {
+      "coding": [
+        {
+          "code": "orghospital",
+          "system": "https://www.ehealth.fgov.be/standards/fhir/core/CodeSystem/cd-hcparty",
+          "display": "hospital"
+        }
+      ]
+    }
+  ],
+  "name": "UZ Leuven"
+}

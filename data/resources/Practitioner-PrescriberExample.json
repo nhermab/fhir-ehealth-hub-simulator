@@ -1,0 +1,23 @@
+{
+  "resourceType": "Practitioner",
+  "id": "PrescriberExample",
+  "meta": {
+    "profile": [
+      "https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-practitioner"
+    ]
+  },
+  "identifier": [
+    {
+      "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/nihdi",
+      "value": "13456789012"
+    }
+  ],
+  "name": [
+    {
+      "given": [
+        "Difoolus"
+      ],
+      "family": "Johnson"
+    }
+  ]
+}

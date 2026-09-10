@@ -1,0 +1,25 @@
+{
+  "resourceType": "Patient",
+  "id": "PatientExample",
+  "meta": {
+    "profile": [
+      "https://www.ehealth.fgov.be/standards/fhir/core/StructureDefinition/be-patient"
+    ]
+  },
+  "identifier": [
+    {
+      "system": "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/ssin",
+      "value": "85073012345"
+    }
+  ],
+  "name": [
+    {
+      "given": [
+        "Bobby"
+      ],
+      "family": "Tables"
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1985-07-30"
+}

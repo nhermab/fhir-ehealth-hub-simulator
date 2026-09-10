@@ -1,0 +1,37 @@
+{
+  "resourceType": "Observation",
+  "id": "ObsHeartRateSummary",
+  "meta": {
+    "profile": [
+      "https://www.ehealth.fgov.be/standards/fhir/core-clinical/StructureDefinition/be-observation"
+    ]
+  },
+  "effectivePeriod": {
+    "start": "2026-01-01T08:00:00Z",
+    "end": "2026-01-02T08:00:00Z"
+  },
+  "performer": [
+    {
+      "reference": "Practitioner/DrJeanDepondt"
+    }
+  ],
+  "status": "final",
+  "code": {
+    "coding": [
+      {
+        "code": "8867-4",
+        "system": "http://loinc.org",
+        "display": "Heart rate"
+      }
+    ]
+  },
+  "subject": {
+    "reference": "Patient/PatientPeeters"
+  },
+  "valueQuantity": {
+    "value": 74,
+    "code": "/min",
+    "system": "http://unitsofmeasure.org",
+    "unit": "beats/minute"
+  }
+}
