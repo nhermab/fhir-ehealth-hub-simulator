@@ -20,7 +20,7 @@ hub:
     hub-oid: "urn:oid:1.3.6.1.4.1.21297.1.3"
     hub-ehp: "1990000003"
     hub-name: "CoZo Regional Hub"
-    server-base-url: "http://localhost:8080/fhir"
+    server-base-url: "https://dev-api.ehealthhub.be"
     # getTransactionList paging. Continuation tokens stay opaque to the consumer, so the
     # patient SSIN never travels inside Bundle.link.
     default-page-size: 20

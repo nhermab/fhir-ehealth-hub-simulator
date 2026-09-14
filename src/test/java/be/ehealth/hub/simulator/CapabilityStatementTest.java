@@ -29,7 +29,7 @@ public class CapabilityStatementTest extends AbstractSimulatorTest {
         assertThat(cs.getFhirVersion()).isEqualTo(Enumerations.FHIRVersion._4_0_1);
         assertThat(cs.getInstantiates()).extracting(canonical -> canonical.getValue())
                 .contains("https://www.ehealth.fgov.be/standards/fhir/interhub/CapabilityStatement/BeInterhubDocumentResponder");
-        assertThat(cs.getImplementation().getUrl()).isEqualTo("http://localhost:8080/fhir");
+        assertThat(cs.getImplementation().getUrl()).isEqualTo("https://dev-api.ehealthhub.be");
         assertThat(cs.getFormat()).extracting(format -> format.getValue()).contains("application/fhir+json");
     }
 

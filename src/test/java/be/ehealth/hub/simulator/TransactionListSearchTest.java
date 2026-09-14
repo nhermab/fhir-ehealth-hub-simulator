@@ -35,7 +35,7 @@ public class TransactionListSearchTest extends AbstractSimulatorTest {
         assertThat(bundle.getEntry()).allSatisfy(entry -> {
             assertThat(entry.getSearch().getMode()).isEqualTo(Bundle.SearchEntryMode.MATCH);
             assertThat(entry.getResource()).isInstanceOf(DocumentReference.class);
-            assertThat(entry.getFullUrl()).startsWith("http://localhost:8080/fhir/DocumentReference/");
+            assertThat(entry.getFullUrl()).startsWith("https://dev-api.ehealthhub.be/DocumentReference/");
         });
         assertThat(documentIds(bundle)).contains("DocRefLabReportContainedExample", "DocRefTelemonitoringExample");
     }

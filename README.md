@@ -294,3 +294,9 @@ hub:
       DocRefLabReportExample: rendered-lab-report-example-01.pdf
       DocRefTelemonitoringExample: holter-001.pdf
 ```
+
+## Hosted reference deployment
+
+The viewer at https://dev.ehealthhub.be/ uses the API base https://dev-api.ehealthhub.be (without a `/fhir` suffix). The gateway supports root transaction paths and `/fhir/*`. Metadata and paging links advertise the public API base by default.
+
+Set `HUB_SIMULATOR_SERVER_BASE_URL=http://localhost:8080/fhir` for local advertised links. Browser CORS defaults to `https://dev.ehealthhub.be`; override `HUB_SIMULATOR_VIEWER_ORIGIN` for another origin. CORS does not implement authentication or authorization.

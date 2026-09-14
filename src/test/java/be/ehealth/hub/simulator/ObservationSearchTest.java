@@ -62,7 +62,7 @@ public class ObservationSearchTest extends AbstractSimulatorTest {
         assertThat(bundle.getEntry()).allSatisfy(entry -> {
             assertThat(entry.getSearch().getMode()).isEqualTo(Bundle.SearchEntryMode.MATCH);
             assertThat(entry.getResource()).isInstanceOf(Observation.class);
-            assertThat(entry.getFullUrl()).startsWith("http://localhost:8080/fhir/Observation/");
+            assertThat(entry.getFullUrl()).startsWith("https://dev-api.ehealthhub.be/Observation/");
         });
 
         Observation obs = observations(bundle).get(0);

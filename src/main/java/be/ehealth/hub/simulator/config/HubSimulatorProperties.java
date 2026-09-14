@@ -45,7 +45,7 @@ public class HubSimulatorProperties {
     /**
      * Base URL for the simulator FHIR endpoint.
      */
-    private String serverBaseUrl = "http://localhost:8080/fhir";
+    private String serverBaseUrl = "https://dev-api.ehealthhub.be";
 
     /**
      * Page size applied to getTransactionList when the consumer supplies no _count.

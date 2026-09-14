@@ -8,9 +8,27 @@ import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
+import java.util.List;
 
 @Configuration
 public class HapiFhirServletConfig {
+    @Bean
+    public FilterRegistrationBean<CorsFilter> viewerCorsFilter(
+            @Value("${hub.simulator.viewer-origin:https://dev.ehealthhub.be}") String viewerOrigin) {
+        CorsConfiguration cors = new CorsConfiguration();
+        cors.setAllowedOrigins(List.of(viewerOrigin));
+        cors.setAllowedMethods(List.of("GET", "POST", "OPTIONS"));
+        cors.setAllowedHeaders(List.of("*"));
+        cors.setExposedHeaders(List.of("Content-Type", "Content-Disposition", "DPoP-Nonce", "WWW-Authenticate"));
+        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(request -> cors));
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        bean.addUrlPatterns("/*");
+        return bean;
+    }
 
     /**
      * One shared R4 context for the whole application: building a {@link FhirContext} is
@@ -34,7 +52,7 @@ public class HapiFhirServletConfig {
                                                                               FhirContext fhirContext) {
         FilterRegistrationBean<InterhubGatewayFilter> bean =
                 new FilterRegistrationBean<>(new InterhubGatewayFilter(repository, fhirContext));
-        bean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        bean.setOrder(Ordered.HIGHEST_PRECEDENCE + 1);
         bean.addUrlPatterns("/*");
         return bean;
     }
