@@ -67,6 +67,12 @@
             "display": "Biochemistry & Hematology Laboratory Report (2026-03-15)"
           }
         ],
+        "identifier": [
+          {
+            "system": "https://www.uzleuven.be/lab/result-identifiers",
+            "value": "815933567-glucose"
+          }
+        ],
         "code": {
           "coding": [
             {
@@ -165,6 +171,12 @@
               "value": "urn:oid:1.3.6.1.4.1.21297.100.2.1.815933567"
             },
             "display": "Biochemistry & Hematology Laboratory Report (2026-03-15)"
+          }
+        ],
+        "identifier": [
+          {
+            "system": "https://www.uzleuven.be/lab/result-identifiers",
+            "value": "815933567-creatinine"
           }
         ],
         "code": {

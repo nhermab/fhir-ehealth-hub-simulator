@@ -58,6 +58,12 @@
       "display": "Biochemistry & Hematology Laboratory Report (2026-03-15)"
     }
   ],
+  "identifier": [
+    {
+      "system": "https://www.uzleuven.be/lab/result-identifiers",
+      "value": "815933567-creatinine"
+    }
+  ],
   "code": {
     "coding": [
       {
