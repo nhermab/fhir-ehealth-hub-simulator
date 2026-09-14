@@ -1,0 +1,14 @@
+{
+  "resourceType": "SearchParameter",
+  "id": "InterhubSearchType",
+  "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/SearchParameter/interhub-searchtype",
+  "description": "Belgian search scope: 'federated' (default) lets the responding hub fan out to connected hub sources and partner hubs; 'local' restricts the answer to the hub's own index, reporting no downstream partial failure.",
+  "base": [
+    "DocumentReference",
+    "Observation"
+  ],
+  "name": "InterhubSearchType",
+  "status": "active",
+  "code": "searchtype",
+  "type": "token"
+}

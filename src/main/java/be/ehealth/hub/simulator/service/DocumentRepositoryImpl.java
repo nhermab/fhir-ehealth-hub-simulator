@@ -37,6 +37,10 @@ public class DocumentRepositoryImpl implements DocumentRepository {
     /** Extension carrying the hub that holds the document, used by {@code searchtype=local}. */
     private static final String HOME_COMMUNITY_ID_EXTENSION =
             "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-ext-home-community-id";
+    private static final String LAB_OBSERVATION_PROFILE =
+            "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-interhub-lab-observation";
+    private static final String END_TO_END_ENCRYPTION_EXTENSION =
+            "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-ext-end-to-end-encryption";
 
     private final HubSimulatorProperties properties;
     private final FhirContext fhirContext;
@@ -45,6 +49,10 @@ public class DocumentRepositoryImpl implements DocumentRepository {
     /** Every alias a consumer may use in $retrieve-document: id, relative reference, uniqueId, local ids. */
     private final Map<String, DocumentReference> docRefByIdentifiers = new ConcurrentHashMap<>();
     private final Map<String, List<DocumentReference>> docRefsByPatientSsin = new ConcurrentHashMap<>();
+
+    private final List<Observation> allLabObservations = new ArrayList<>();
+    private final Map<String, Observation> observationsById = new ConcurrentHashMap<>();
+    private final Map<String, List<Observation>> observationsByPatientSsin = new ConcurrentHashMap<>();
 
     /** Document Bundles by their own id and identifier; used only while cross-linking. */
     private final Map<String, Bundle> documentBundlesByIdentifier = new ConcurrentHashMap<>();
@@ -80,6 +88,9 @@ public class DocumentRepositoryImpl implements DocumentRepository {
         allDocumentReferences.clear();
         docRefByIdentifiers.clear();
         docRefsByPatientSsin.clear();
+        allLabObservations.clear();
+        observationsById.clear();
+        observationsByPatientSsin.clear();
         documentBundlesByIdentifier.clear();
         pdfFiles.clear();
         payloadByDocRefId.clear();
@@ -124,15 +135,18 @@ public class DocumentRepositoryImpl implements DocumentRepository {
                     .filter(OperationOutcome.class::isInstance)
                     .forEach(resource -> indexOperationOutcome((OperationOutcome) resource));
             resources.stream()
+                    .filter(Observation.class::isInstance)
+                    .forEach(resource -> indexObservation((Observation) resource));
+            resources.stream()
                     .filter(resource -> resource instanceof Bundle bundle
                             && bundle.getType() == Bundle.BundleType.SEARCHSET)
                     .forEach(resource -> indexSearchsetBundle((Bundle) resource));
 
             crossLinkDocumentReferencesAndBundles();
 
-            log.info("Repository loaded: {} DocumentReference(s), {} document Bundle(s), {} PDF rendering(s), "
+            log.info("Repository loaded: {} DocumentReference(s), {} Observation(s), {} document Bundle(s), {} PDF rendering(s), "
                             + "{} OperationOutcome(s); {} reference(s) resolve to a payload, {} to a rendering",
-                    allDocumentReferences.size(), getDocumentBundleCount(), countPdfFiles(),
+                    allDocumentReferences.size(), allLabObservations.size(), getDocumentBundleCount(), countPdfFiles(),
                     operationOutcomes.size(), payloadByDocRefId.size(), renderingByDocRefId.size());
 
         } catch (Exception e) {
@@ -200,6 +214,42 @@ public class DocumentRepositoryImpl implements DocumentRepository {
         }
     }
 
+    private void indexObservation(Observation obs) {
+        String id = obs.getIdPart();
+        if (id != null && observationsById.containsKey(id)) {
+            return;
+        }
+
+        boolean isInterhubLab = (obs.getMeta() != null && obs.getMeta().hasProfile(LAB_OBSERVATION_PROFILE))
+                || (obs.hasCategory() && obs.getCategory().stream().anyMatch(cc ->
+                        cc.getCoding().stream().anyMatch(c -> "laboratory".equalsIgnoreCase(c.getCode()))
+                        && obs.hasDerivedFrom()));
+
+        if (!isInterhubLab) {
+            return;
+        }
+
+        allLabObservations.add(obs);
+        if (id != null) {
+            observationsById.put(id, obs);
+            observationsById.put("Observation/" + id, obs);
+        }
+
+        String ssin = extractObservationSsin(obs);
+        if (ssin != null) {
+            String normalized = SsinValidator.normalize(ssin);
+            observationsByPatientSsin.computeIfAbsent(normalized, k -> new ArrayList<>()).add(obs);
+            log.debug("Indexed Observation {} under patient SSIN {}", id, normalized);
+        }
+    }
+
+    private String extractObservationSsin(Observation obs) {
+        if (obs.hasSubject() && obs.getSubject().hasIdentifier() && obs.getSubject().getIdentifier().hasValue()) {
+            return obs.getSubject().getIdentifier().getValue();
+        }
+        return null;
+    }
+
     private void indexDocumentBundle(Bundle bundle) {
         String id = bundle.getIdPart();
         if (id != null) {
@@ -223,6 +273,8 @@ public class DocumentRepositoryImpl implements DocumentRepository {
             Resource res = entry.getResource();
             if (res instanceof DocumentReference docRef) {
                 indexDocumentReference(docRef);
+            } else if (res instanceof Observation obs) {
+                indexObservation(obs);
             } else if (res instanceof OperationOutcome outcome) {
                 indexOperationOutcome(outcome);
             }
@@ -557,6 +609,133 @@ public class DocumentRepositoryImpl implements DocumentRepository {
     }
 
     @Override
+    public ObservationSearchResult searchObservations(SearchFilter filter) {
+        String ssin = SsinValidator.normalize(filter.getPatientSsin());
+
+        List<Observation> matches = observationsByPatientSsin.getOrDefault(ssin, List.of()).stream()
+                .filter(obs -> matchesObservationScope(obs, filter.getSearchScope()))
+                .filter(this::matchesObservationStatus)
+                .filter(obs -> matchesObservationCategory(obs, filter.getCategory()))
+                .filter(obs -> matchesObservationCode(obs, filter.getCodes()))
+                .filter(obs -> matchesObservationDate(obs, filter.getDateFrom(), filter.getDateTo()))
+                .sorted(observationComparator(filter.getSort()))
+                .collect(Collectors.toList());
+
+        int total = matches.size();
+        int offset = Math.min(Math.max(filter.getOffset(), 0), total);
+        int end = filter.getCount() > 0 ? Math.min(offset + filter.getCount(), total) : total;
+
+        return new ObservationSearchResult(List.copyOf(matches.subList(offset, end)), total, offset);
+    }
+
+    private boolean matchesObservationScope(Observation obs, SearchScope scope) {
+        if (scope != SearchScope.LOCAL) {
+            return true;
+        }
+        Extension home = obs.getExtensionByUrl(HOME_COMMUNITY_ID_EXTENSION);
+        if (home == null || home.getValue() == null) {
+            return false;
+        }
+        String value = home.getValue().primitiveValue();
+        return properties.getHubOid().equalsIgnoreCase(value) || properties.getHubEhp().equalsIgnoreCase(value);
+    }
+
+    private boolean matchesObservationStatus(Observation obs) {
+        if (obs.hasStatus() && obs.getStatus() == Observation.ObservationStatus.ENTEREDINERROR) {
+            return false;
+        }
+        // Responder rule: source DocumentReference must have status 'current' and not be end-to-end encrypted
+        if (obs.hasDerivedFrom()) {
+            for (Reference ref : obs.getDerivedFrom()) {
+                String target = extractReferenceValue(ref);
+                if (target != null) {
+                    Optional<DocumentReference> sourceDoc = findDocumentReference(target);
+                    if (sourceDoc.isPresent()) {
+                        DocumentReference doc = sourceDoc.get();
+                        if (doc.hasStatus() && doc.getStatus() != Enumerations.DocumentReferenceStatus.CURRENT) {
+                            return false;
+                        }
+                        if (doc.getExtensionByUrl(END_TO_END_ENCRYPTION_EXTENSION) != null) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    private static String extractReferenceValue(Reference reference) {
+        if (reference == null) {
+            return null;
+        }
+        if (reference.hasReference()) {
+            return reference.getReference();
+        }
+        if (reference.hasIdentifier() && reference.getIdentifier().hasValue()) {
+            return reference.getIdentifier().getValue();
+        }
+        return null;
+    }
+
+    private boolean matchesObservationCategory(Observation obs, String token) {
+        if (token == null || token.isBlank()) {
+            return true;
+        }
+        return obs.hasCategory() && obs.getCategory().stream()
+                .flatMap(cc -> cc.getCoding().stream())
+                .anyMatch(coding -> tokenMatches(token, coding.getSystem(), coding.getCode()));
+    }
+
+    private boolean matchesObservationCode(Observation obs, List<String> codes) {
+        if (codes == null || codes.isEmpty()) {
+            return true;
+        }
+        return codes.stream().anyMatch(codeToken ->
+                obs.hasCode() && obs.getCode().getCoding().stream().anyMatch(coding ->
+                        tokenMatches(codeToken, coding.getSystem(), coding.getCode())));
+    }
+
+    private boolean matchesObservationDate(Observation obs, Date from, Date to) {
+        if (from == null && to == null) {
+            return true;
+        }
+        if (!obs.hasEffectiveDateTimeType() || obs.getEffectiveDateTimeType().getValue() == null) {
+            return false;
+        }
+        Date obsDate = obs.getEffectiveDateTimeType().getValue();
+        if (from != null && obsDate.before(from)) {
+            return false;
+        }
+        return to == null || !obsDate.after(to);
+    }
+
+    private static Comparator<Observation> observationComparator(String sort) {
+        Comparator<Observation> byDate = Comparator.comparing(obs ->
+                obs.hasEffectiveDateTimeType() && obs.getEffectiveDateTimeType().getValue() != null
+                        ? obs.getEffectiveDateTimeType().getValue()
+                        : new Date(0));
+        Comparator<Observation> ordered = "date".equalsIgnoreCase(sort) ? byDate : byDate.reversed();
+        return ordered.thenComparing(obs -> Objects.requireNonNullElse(obs.getIdPart(), ""));
+    }
+
+    @Override
+    public Optional<Observation> findObservation(String referenceOrId) {
+        if (referenceOrId == null || referenceOrId.isBlank()) {
+            return Optional.empty();
+        }
+        Observation direct = observationsById.get(referenceOrId.trim());
+        if (direct != null) {
+            return Optional.of(direct);
+        }
+        String id = referenceOrId.trim();
+        if (id.startsWith("Observation/")) {
+            id = id.substring("Observation/".length());
+        }
+        return Optional.ofNullable(observationsById.get(id));
+    }
+
+    @Override
     public int getDocumentReferenceCount() {
         return allDocumentReferences.size();
     }
@@ -564,5 +743,10 @@ public class DocumentRepositoryImpl implements DocumentRepository {
     @Override
     public int getDocumentBundleCount() {
         return (int) documentBundlesByIdentifier.values().stream().distinct().count();
+    }
+
+    @Override
+    public int getObservationCount() {
+        return allLabObservations.size();
     }
 }

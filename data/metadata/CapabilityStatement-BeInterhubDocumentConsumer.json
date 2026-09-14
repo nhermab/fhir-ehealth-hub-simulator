@@ -1,0 +1,53 @@
+{
+  "resourceType": "CapabilityStatement",
+  "id": "BeInterhubDocumentConsumer",
+  "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/CapabilityStatement/BeInterhubDocumentConsumer",
+  "title": "Belgian Interhub Document Consumer Capability Statement",
+  "description": "Defines the mandatory capabilities for initiating Belgian eHealth Hubs (and cross-border NCPeH endpoints) querying and retrieving health documents from responding Belgian Hubs via Interhub using HTTP POST.",
+  "format": [
+    "json",
+    "xml"
+  ],
+  "rest": [
+    {
+      "resource": [
+        {
+          "supportedProfile": [
+            "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-interhub-minimal-documentreference"
+          ],
+          "interaction": [
+            {
+              "code": "search-type",
+              "documentation": "Consumers SHALL execute discovery queries via HTTP POST to [base]/DocumentReference/_search with search parameters encoded in the request body as application/x-www-form-urlencoded. Pagination SHALL also use POST, replaying the opaque continuation parameter carried in Bundle.link[relation=next]."
+            }
+          ],
+          "operation": [
+            {
+              "name": "retrieve-document",
+              "definition": "https://www.ehealth.fgov.be/standards/fhir/interhub/OperationDefinition/be-op-retrieve-document",
+              "documentation": "Consumers SHALL execute document retrieval via HTTP POST [base]/DocumentReference/$retrieve-document, providing the target DocumentReference in the request Parameters, and SHALL NOT attempt a GET read on the returned Bundle or Binary."
+            }
+          ],
+          "type": "DocumentReference",
+          "profile": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-interhub-documentreference"
+        },
+        {
+          "interaction": [
+            {
+              "code": "search-type",
+              "documentation": "Consumers SHALL execute laboratory observation queries via HTTP POST to [base]/Observation/_search with search parameters encoded in the request body as application/x-www-form-urlencoded. Consumers SHALL check that Observation.subject.identifier matches the queried SSIN before merging federated results, and SHALL obtain the full report by calling $retrieve-document at the hub named in the homeCommunityId extension, passing derivedFrom.identifier."
+            }
+          ],
+          "type": "Observation",
+          "profile": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-interhub-lab-observation"
+        }
+      ],
+      "mode": "client",
+      "documentation": "Belgian Federated Interhub Document Consumer (MHD ITI-67 Initiating Hub / ITI-68 Initiating Hub / lab observation consumer based on IHE QEDm PCC-44). Initiating consumers SHALL execute metadata queries, document retrievals and laboratory observation searches via HTTP POST, and SHALL NOT rely on any other interaction of the responding hub, nor attempt to resolve logical references (they carry a business identifier, not a URL)."
+    }
+  ],
+  "status": "active",
+  "date": "2026-08-17",
+  "kind": "requirements",
+  "fhirVersion": "4.0.1"
+}

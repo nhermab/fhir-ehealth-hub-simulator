@@ -29,6 +29,7 @@ public class InterhubCapabilityStatementFactory {
     public static final String DOCUMENT_REFERENCE_PROFILE = IG_BASE + "/StructureDefinition/be-interhub-documentreference";
     public static final String MINIMAL_DOCUMENT_REFERENCE_PROFILE = IG_BASE + "/StructureDefinition/be-interhub-minimal-documentreference";
     public static final String DOCUMENT_BUNDLE_PROFILE = IG_BASE + "/StructureDefinition/be-interhub-document-bundle";
+    public static final String LAB_OBSERVATION_PROFILE = IG_BASE + "/StructureDefinition/be-interhub-lab-observation";
     public static final String RETRIEVE_DOCUMENT_OPERATION = IG_BASE + "/OperationDefinition/be-op-retrieve-document";
 
     private static final String SP_BASE = "http://hl7.org/fhir/SearchParameter/";
@@ -52,11 +53,13 @@ public class InterhubCapabilityStatementFactory {
         cs.setKind(CapabilityStatement.CapabilityStatementKind.INSTANCE);
         cs.addInstantiates(RESPONDER_REQUIREMENTS);
         cs.setDescription(
-                "Running instance of a Belgian federated Interhub responding hub. It implements exactly the two "
+                "Running instance of a Belgian federated Interhub responding hub. It implements exactly the three "
                         + "Interhub transactions: getTransactionList (MHD ITI-67 Find DocumentReferences) over "
-                        + "HTTP POST [base]/DocumentReference/_search, and getTransaction (Belgian "
+                        + "HTTP POST [base]/DocumentReference/_search, getTransaction (Belgian "
                         + "$retrieve-document, gatewaying MHD ITI-68) over HTTP POST "
-                        + "[base]/DocumentReference/$retrieve-document. No other interaction is served.");
+                        + "[base]/DocumentReference/$retrieve-document, and laboratory observation search "
+                        + "(based on IHE QEDm PCC-44) over HTTP POST [base]/Observation/_search. "
+                        + "No other interaction is served.");
 
         cs.getSoftware()
                 .setName("fhir-ehealth-hub-simulator")
@@ -82,7 +85,7 @@ public class InterhubCapabilityStatementFactory {
         CapabilityStatementRestComponent rest = new CapabilityStatementRestComponent();
         rest.setMode(RestfulCapabilityMode.SERVER);
         rest.setDocumentation(
-                "Belgian Federated Interhub responder. Consumers SHALL use HTTP POST for both transactions so that "
+                "Belgian Federated Interhub responder. Consumers SHALL use HTTP POST for all transactions so that "
                         + "the patient SSIN and the clinical search criteria never appear in a URL, a proxy access "
                         + "log or a browser history. Pagination stays on POST: the next page is requested by "
                         + "replaying the opaque _continuation parameter from Bundle.link in a new "
@@ -95,6 +98,7 @@ public class InterhubCapabilityStatementFactory {
                         + "hub's responsibility, never the responder's.");
 
         rest.addResource(buildDocumentReferenceResource());
+        rest.addResource(buildObservationResource());
         return rest;
     }
 
@@ -169,6 +173,52 @@ public class InterhubCapabilityStatementFactory {
                 "Opaque next-page token issued in Bundle.link[relation=next].url. Replay it alone in a POST "
                         + "_search body; every other parameter is then ignored. Tokens expire after "
                         + properties.getContinuationTokenTtlSeconds() + " seconds.");
+
+        return resource;
+    }
+
+    private CapabilityStatementRestResourceComponent buildObservationResource() {
+        CapabilityStatementRestResourceComponent resource = new CapabilityStatementRestResourceComponent();
+        resource.setType("Observation");
+        resource.setProfile(LAB_OBSERVATION_PROFILE);
+        resource.setDocumentation(
+                "Laboratory observations returned by Transaction 3 (based on IHE QEDm PCC-44). Every reference "
+                        + "is a logical reference by national business identifier (subject by SSIN, performer by "
+                        + "NIHDI/CBE, derivedFrom by source document uniqueId), so the responding hub needs no "
+                        + "endpoints for Patient or Practitioner.");
+        resource.setVersioning(CapabilityStatement.ResourceVersionPolicy.NOVERSION);
+        resource.setReadHistory(false);
+        resource.setUpdateCreate(false);
+        resource.setConditionalCreate(false);
+        resource.setConditionalUpdate(false);
+        resource.setConditionalDelete(CapabilityStatement.ConditionalDeleteStatus.NOTSUPPORTED);
+
+        resource.addInteraction()
+                .setCode(TypeRestfulInteraction.SEARCHTYPE)
+                .setDocumentation(
+                        "Mandatory laboratory observation search via HTTP POST to [base]/Observation/_search with "
+                                + "application/x-www-form-urlencoded body. Returns BeInterhubLabObservation resources "
+                                + "extracted from laboratory report documents, each carrying logical references only.");
+
+        addSearchParam(resource, "patient.identifier", SearchParamType.TOKEN, null,
+                "Mandatory. Patient national SSIN / INSS as system|value. Both "
+                        + "https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/ssin and "
+                        + "urn:oid:1.3.6.1.4.1.21297.100.1.1 are accepted.");
+        addSearchParam(resource, "code", SearchParamType.TOKEN, SP_BASE + "clinical-code",
+                "Mandatory. One or more LOINC analyte codes (e.g. http://loinc.org|1558-6).");
+        addSearchParam(resource, "category", SearchParamType.TOKEN, SP_BASE + "Observation-category",
+                "Optional, for IHE QEDm compatibility: http://terminology.hl7.org/CodeSystem/observation-category|laboratory.");
+        addSearchParam(resource, "date", SearchParamType.DATE, SP_BASE + "clinical-date",
+                "Filters observations by effectiveDateTime timestamp range (ge, le, gt, lt).");
+        addSearchParam(resource, "searchtype", SearchParamType.TOKEN, null,
+                "Belgian federation scope: federated (default, fans out across connected hubs) or local "
+                        + "(searches only local hub index).");
+        addSearchParam(resource, "_count", SearchParamType.NUMBER, null,
+                "Maximum number of observations returned per page.");
+        addSearchParam(resource, "_sort", SearchParamType.STRING, null,
+                "Result ordering: -date (default, newest first) or date.");
+        addSearchParam(resource, "_continuation", SearchParamType.TOKEN, null,
+                "Opaque next-page token issued in Bundle.link[relation=next].url.");
 
         return resource;
     }

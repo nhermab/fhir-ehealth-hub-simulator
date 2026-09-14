@@ -4,6 +4,7 @@ import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.DocumentReference;
 import org.hl7.fhir.r4.model.OperationOutcome;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -51,6 +52,7 @@ public interface DocumentRepository {
         private String patientIdentifierSystem;
         private String category;
         private String type;
+        private List<String> codes = new ArrayList<>();
         private Date dateFrom;
         private Date dateTo;
         private String authorIdentifier;
@@ -74,6 +76,10 @@ public interface DocumentRepository {
 
         public String getType() { return type; }
         public void setType(String type) { this.type = type; }
+
+        public List<String> getCodes() { return codes; }
+        public void setCodes(List<String> codes) { this.codes = codes != null ? new ArrayList<>(codes) : new ArrayList<>(); }
+        public void addCode(String code) { if (code != null && !code.isBlank()) this.codes.add(code.trim()); }
 
         public Date getDateFrom() { return dateFrom; }
         public void setDateFrom(Date dateFrom) { this.dateFrom = dateFrom; }
@@ -115,6 +121,7 @@ public interface DocumentRepository {
             copy.patientIdentifierSystem = patientIdentifierSystem;
             copy.category = category;
             copy.type = type;
+            copy.codes = new ArrayList<>(codes);
             copy.dateFrom = dateFrom;
             copy.dateTo = dateTo;
             copy.authorIdentifier = authorIdentifier;
@@ -141,9 +148,28 @@ public interface DocumentRepository {
     }
 
     /**
+     * One page of matching Observations together with the total number of matches.
+     */
+    record ObservationSearchResult(List<org.hl7.fhir.r4.model.Observation> page, int total, int offset) {
+        public boolean hasMore() {
+            return offset + page.size() < total;
+        }
+    }
+
+    /**
      * Execute a getTransactionList (ITI-67) query and return the requested page.
      */
     SearchResult searchDocumentReferences(SearchFilter filter);
+
+    /**
+     * Execute a Laboratory Observation Search (Transaction 3 / QEDm PCC-44) query and return the requested page.
+     */
+    ObservationSearchResult searchObservations(SearchFilter filter);
+
+    /**
+     * Find an Observation by logical id or relative reference.
+     */
+    Optional<org.hl7.fhir.r4.model.Observation> findObservation(String referenceOrId);
 
     /**
      * Find a DocumentReference by logical id, relative reference, masterIdentifier or
@@ -185,4 +211,9 @@ public interface DocumentRepository {
      * Returns total count of loaded document Bundles.
      */
     int getDocumentBundleCount();
+
+    /**
+     * Returns total count of loaded lab Observations.
+     */
+    int getObservationCount();
 }

@@ -1,6 +1,7 @@
 package be.ehealth.hub.simulator.config;
 
 import be.ehealth.hub.simulator.provider.HubDocumentReferenceResourceProvider;
+import be.ehealth.hub.simulator.provider.HubObservationResourceProvider;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.rest.api.EncodingEnum;
 import ca.uhn.fhir.rest.server.RestfulServer;
@@ -17,8 +18,8 @@ import java.util.List;
 /**
  * The HAPI server behind {@code /fhir/*}.
  *
- * <p>Exactly one resource provider is registered, and it declares only a search and the
- * {@code $retrieve-document} operation. Every other resource type and interaction is therefore
+ * <p>Exactly two resource providers are registered: DocumentReference (search and $retrieve-document)
+ * and Observation (search). Every other resource type and interaction is therefore
  * unknown to HAPI as well as blocked by {@code InterhubGatewayFilter}.
  */
 @Component
@@ -27,13 +28,16 @@ public class HubRestfulServer extends RestfulServer {
     private static final Logger log = LoggerFactory.getLogger(HubRestfulServer.class);
 
     private final HubDocumentReferenceResourceProvider docRefProvider;
+    private final HubObservationResourceProvider observationProvider;
     private final InterhubCapabilityStatementFactory capabilityStatementFactory;
 
     public HubRestfulServer(FhirContext fhirContext,
                             HubDocumentReferenceResourceProvider docRefProvider,
+                            HubObservationResourceProvider observationProvider,
                             InterhubCapabilityStatementFactory capabilityStatementFactory) {
         super(fhirContext);
         this.docRefProvider = docRefProvider;
+        this.observationProvider = observationProvider;
         this.capabilityStatementFactory = capabilityStatementFactory;
     }
 
@@ -45,7 +49,7 @@ public class HubRestfulServer extends RestfulServer {
         setDefaultResponseEncoding(EncodingEnum.JSON);
         setDefaultPrettyPrint(true);
 
-        setResourceProviders(List.of(docRefProvider));
+        setResourceProviders(List.of(docRefProvider, observationProvider));
 
         LoggingInterceptor loggingInterceptor = new LoggingInterceptor();
         loggingInterceptor.setMessageFormat(
@@ -59,7 +63,8 @@ public class HubRestfulServer extends RestfulServer {
         capabilityStatement.setCapabilityStatement(capabilityStatementFactory.build());
         registerInterceptor(capabilityStatement);
 
-        log.info("Interhub responder ready: getTransactionList (POST /DocumentReference/_search) and "
-                + "getTransaction (POST /DocumentReference/$retrieve-document)");
+        log.info("Interhub responder ready: getTransactionList (POST /DocumentReference/_search), "
+                + "getTransaction (POST /DocumentReference/$retrieve-document), and "
+                + "laboratory observation search (POST /Observation/_search)");
     }
 }

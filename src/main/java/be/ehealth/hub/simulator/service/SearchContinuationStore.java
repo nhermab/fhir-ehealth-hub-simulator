@@ -25,13 +25,13 @@ public class SearchContinuationStore {
 
     private final HubSimulatorProperties properties;
     private final SecureRandom random = new SecureRandom();
-    private final Map<String, Entry> tokens;
+    private final Map<String, ContinuationEntry> tokens;
 
     public SearchContinuationStore(HubSimulatorProperties properties) {
         this.properties = properties;
         this.tokens = new LinkedHashMap<>(16, 0.75f, true) {
             @Override
-            protected boolean removeEldestEntry(Map.Entry<String, Entry> eldest) {
+            protected boolean removeEldestEntry(Map.Entry<String, ContinuationEntry> eldest) {
                 return size() > Math.max(1, SearchContinuationStore.this.properties.getContinuationTokenCacheSize());
             }
         };
@@ -43,7 +43,7 @@ public class SearchContinuationStore {
         random.nextBytes(material);
         String token = Base64.getUrlEncoder().withoutPadding().encodeToString(material);
         synchronized (tokens) {
-            tokens.put(token, new Entry(filter, Instant.now()));
+            tokens.put(token, new ContinuationEntry(filter, Instant.now()));
         }
         return token;
     }
@@ -55,7 +55,7 @@ public class SearchContinuationStore {
         }
         Duration ttl = Duration.ofSeconds(properties.getContinuationTokenTtlSeconds());
         synchronized (tokens) {
-            Entry entry = tokens.get(token);
+            ContinuationEntry entry = tokens.get(token);
             if (entry == null) {
                 return Optional.empty();
             }
@@ -67,6 +67,6 @@ public class SearchContinuationStore {
         }
     }
 
-    private record Entry(SearchFilter filter, Instant issued) {
+    private record ContinuationEntry(SearchFilter filter, Instant issued) {
     }
 }

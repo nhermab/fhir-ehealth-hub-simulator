@@ -43,11 +43,14 @@ public class InterhubGatewayFilter extends OncePerRequestFilter {
     private static final String DOCUMENT_REFERENCE = "/DocumentReference";
     private static final String SEARCH = DOCUMENT_REFERENCE + "/_search";
     private static final String RETRIEVE = DOCUMENT_REFERENCE + "/$retrieve-document";
+    private static final String OBSERVATION = "/Observation";
+    private static final String OBSERVATION_SEARCH = OBSERVATION + "/_search";
 
     private static final String UNSUPPORTED_DIAGNOSTICS =
-            "This Belgian Interhub responder serves exactly two transactions: getTransactionList — "
-                    + "POST [base]/DocumentReference/_search (MHD ITI-67), and getTransaction — "
-                    + "POST [base]/DocumentReference/$retrieve-document. GET [base]/metadata returns the "
+            "This Belgian Interhub responder serves exactly three transactions: getTransactionList — "
+                    + "POST [base]/DocumentReference/_search (MHD ITI-67), getTransaction — "
+                    + "POST [base]/DocumentReference/$retrieve-document, and laboratory observation search — "
+                    + "POST [base]/Observation/_search. GET [base]/metadata returns the "
                     + "CapabilityStatement. No other path, resource type or interaction is available.";
 
     private final DocumentRepository repository;
@@ -102,6 +105,21 @@ public class InterhubGatewayFilter extends OncePerRequestFilter {
                     methodNotAllowed(response, "GET");
                     return;
                 }
+            }
+            case OBSERVATION_SEARCH -> {
+                if (!"POST".equals(method)) {
+                    methodNotAllowed(response, "POST");
+                    return;
+                }
+                if (wantsPdf(request)) {
+                    notAcceptable(response, "Laboratory observation search answers a FHIR searchset Bundle. "
+                            + "application/pdf is only available on $retrieve-document.");
+                    return;
+                }
+            }
+            case OBSERVATION -> {
+                methodNotAllowed(response, "POST");
+                return;
             }
             default -> {
                 unsupported(response, method, fhirPath);

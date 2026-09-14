@@ -3,7 +3,7 @@
   "id": "BeInterhubDocumentResponder",
   "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/CapabilityStatement/BeInterhubDocumentResponder",
   "title": "Belgian Interhub Document Responder Capability Statement",
-  "description": "Defines the mandatory capabilities for Belgian eHealth Hubs and repositories responding to Interhub metadata discovery (getTransactionList / MHD ITI-67) and document retrieval (getTransaction / MHD ITI-68) requests via HTTP POST.",
+  "description": "Defines the mandatory capabilities for Belgian eHealth Hubs and repositories responding to Interhub metadata discovery (getTransactionList / MHD ITI-67), document retrieval (getTransaction / MHD ITI-68) and laboratory observation search requests via HTTP POST.",
   "format": [
     "json",
     "xml"
@@ -87,10 +87,57 @@
           ],
           "type": "DocumentReference",
           "profile": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-interhub-documentreference"
+        },
+        {
+          "interaction": [
+            {
+              "code": "search-type",
+              "documentation": "Mandatory laboratory observation search via HTTP POST to [base]/Observation/_search with application/x-www-form-urlencoded body. Returns BeInterhubLabObservation resources extracted from laboratory report documents, each carrying logical references only (subject by SSIN, performer by NIHDI/CBE, derivedFrom by source document uniqueId). A responding hub SHALL apply the access decision of the source DocumentReference to every observation extracted from it, SHALL NOT return observations extracted from end-to-end encrypted documents, and SHALL only return observations whose source DocumentReference has status 'current'. No read interaction is offered: the full context of a result is obtained with $retrieve-document on its source document."
+            }
+          ],
+          "searchParam": [
+            {
+              "name": "patient.identifier",
+              "type": "token",
+              "documentation": "Mandatory patient SSIN/INSS (system=https://www.ehealth.fgov.be/standards/fhir/core/NamingSystem/ssin), same syntax as getTransactionList. Matched against Observation.subject.identifier: the responder does not resolve a Patient resource."
+            },
+            {
+              "name": "code",
+              "type": "token",
+              "documentation": "Mandatory: one or more LOINC analyte codes, e.g. 'http://loinc.org|1558-6'."
+            },
+            {
+              "name": "category",
+              "type": "token",
+              "documentation": "Optional, for IHE QEDm compatibility: 'http://terminology.hl7.org/CodeSystem/observation-category|laboratory'. Every observation on this endpoint is a laboratory result, so omitting it does not change the result."
+            },
+            {
+              "name": "date",
+              "type": "date",
+              "documentation": "Filters observations by effectiveDateTime timestamp range (ge, le)."
+            },
+            {
+              "name": "searchtype",
+              "type": "token",
+              "documentation": "Belgian federation scope: 'federated' (default, fans out across connected hubs) or 'local' (searches only local hub index)."
+            },
+            {
+              "name": "_count",
+              "type": "number",
+              "documentation": "Maximum number of observations returned per page."
+            },
+            {
+              "name": "_sort",
+              "type": "string",
+              "documentation": "Result ordering: '-date' (default, newest first) or 'date'."
+            }
+          ],
+          "type": "Observation",
+          "profile": "https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-interhub-lab-observation"
         }
       ],
       "mode": "server",
-      "documentation": "Belgian Federated Interhub Document Sharing Server (MHD ITI-67 Responder / ITI-68 Responder). Exposes exactly two transactions — getTransactionList and getTransaction — and mandates HTTP POST for both, so that neither the patient SSIN nor the clinical search criteria ever appear in a URL, a proxy access log or a browser history."
+      "documentation": "Belgian Federated Interhub Document Sharing Server (MHD ITI-67 Responder / ITI-68 Responder / lab observation responder based on IHE QEDm PCC-44). Exposes exactly three interactions — getTransactionList, getTransaction and the laboratory observation search — and mandates HTTP POST for all of them, so that neither the patient SSIN nor the clinical search criteria ever appear in a URL, a proxy access log or a browser history. No endpoints exist for Patient, Practitioner, Organization or Specimen: every reference in a returned resource is either contained or a logical reference by national business identifier."
     }
   ],
   "status": "active",

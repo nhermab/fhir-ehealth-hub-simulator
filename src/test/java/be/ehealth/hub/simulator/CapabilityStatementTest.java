@@ -34,13 +34,13 @@ public class CapabilityStatementTest extends AbstractSimulatorTest {
     }
 
     @Test
-    @DisplayName("The statement advertises DocumentReference search and $retrieve-document, and nothing else")
-    public void testAdvertisedSurfaceIsTheTwoTransactions() {
+    @DisplayName("The statement advertises DocumentReference search, $retrieve-document, and Observation search, and nothing else")
+    public void testAdvertisedSurfaceIsTheThreeTransactions() {
         CapabilityStatement cs = capabilityStatement("/fhir/metadata");
 
         List<CapabilityStatement.CapabilityStatementRestResourceComponent> resources =
                 cs.getRestFirstRep().getResource();
-        assertThat(resources).hasSize(1);
+        assertThat(resources).hasSize(2);
 
         CapabilityStatement.CapabilityStatementRestResourceComponent docRef = resources.get(0);
         assertThat(docRef.getType()).isEqualTo("DocumentReference");
@@ -52,18 +52,31 @@ public class CapabilityStatementTest extends AbstractSimulatorTest {
                 .containsExactly("retrieve-document");
         assertThat(docRef.getOperationFirstRep().getDefinition())
                 .isEqualTo("https://www.ehealth.fgov.be/standards/fhir/interhub/OperationDefinition/be-op-retrieve-document");
+
+        CapabilityStatement.CapabilityStatementRestResourceComponent obs = resources.get(1);
+        assertThat(obs.getType()).isEqualTo("Observation");
+        assertThat(obs.getProfile())
+                .isEqualTo("https://www.ehealth.fgov.be/standards/fhir/interhub/StructureDefinition/be-interhub-lab-observation");
+        assertThat(obs.getInteraction()).extracting(i -> i.getCode().toCode())
+                .containsExactly("search-type");
+        assertThat(obs.getOperation()).isEmpty();
+
         assertThat(cs.getRestFirstRep().getInteraction()).isEmpty();
     }
 
     @Test
-    @DisplayName("Every search parameter the IG defines for ITI-67 is advertised")
+    @DisplayName("Every search parameter the IG defines for ITI-67 and Transaction 3 is advertised")
     public void testSearchParametersAdvertised() {
         CapabilityStatement cs = capabilityStatement("/fhir/metadata");
 
-        assertThat(cs.getRestFirstRep().getResourceFirstRep().getSearchParam())
+        assertThat(cs.getRestFirstRep().getResource().get(0).getSearchParam())
                 .extracting(CapabilityStatement.CapabilityStatementRestResourceSearchParamComponent::getName)
                 .contains("patient.identifier", "category", "type", "date", "author.identifier", "status",
                         "_id", "identifier", "searchtype", "_count", "_sort", "_continuation");
+
+        assertThat(cs.getRestFirstRep().getResource().get(1).getSearchParam())
+                .extracting(CapabilityStatement.CapabilityStatementRestResourceSearchParamComponent::getName)
+                .contains("patient.identifier", "code", "category", "date", "searchtype", "_count", "_sort", "_continuation");
     }
 
     @Test
