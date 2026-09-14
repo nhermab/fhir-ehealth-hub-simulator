@@ -3,7 +3,7 @@
   "id": "BeInterhubDocumentConsumer",
   "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/CapabilityStatement/BeInterhubDocumentConsumer",
   "title": "Belgian Interhub Document Consumer Capability Statement",
-  "description": "Defines the mandatory capabilities for initiating Belgian eHealth Hubs (and cross-border NCPeH endpoints) querying and retrieving health documents from responding Belgian Hubs via Interhub using HTTP POST.",
+  "description": "Defines the mandatory capabilities for initiating Belgian eHealth Hubs (and cross-border NCPeH endpoints) discovering and retrieving health documents and searching laboratory observations from responding Belgian Hubs via Interhub using HTTP POST. See [Laboratory Observation Search](transactions.html#lab-observation-search) for the contract and [search parameters](transactions.html#lab-observation-search-parameters) for all supported query inputs.",
   "format": [
     "json",
     "xml"

@@ -3,7 +3,7 @@
   "id": "BeInterhubDocumentResponder",
   "url": "https://www.ehealth.fgov.be/standards/fhir/interhub/CapabilityStatement/BeInterhubDocumentResponder",
   "title": "Belgian Interhub Document Responder Capability Statement",
-  "description": "Defines the mandatory capabilities for Belgian eHealth Hubs and repositories responding to Interhub metadata discovery (getTransactionList / MHD ITI-67), document retrieval (getTransaction / MHD ITI-68) and laboratory observation search requests via HTTP POST.",
+  "description": "Defines the mandatory capabilities for Belgian eHealth Hubs and repositories responding to Interhub metadata discovery (getTransactionList / MHD ITI-67), document retrieval (getTransaction / MHD ITI-68) and laboratory observation search requests via HTTP POST. See [Laboratory Observation Search](transactions.html#lab-observation-search) for the contract and [search parameters](transactions.html#lab-observation-search-parameters) for all supported query inputs.",
   "format": [
     "json",
     "xml"
